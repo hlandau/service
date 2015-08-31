@@ -58,17 +58,18 @@ Flags
 
 The following flags are automatically registered via the "flag" package:
 
-    -chroot=path              chroot to a directory (must set UID, GID) ("/" disables)
-    -daemon=0|1               run as daemon? (doesn't fork)
-    -dropprivs=0|1            drop privileges?
-    -fork=0|1                 fork?
-    -uid=username             UID or username to setuid to
-    -gid=groupname            GID or group name to setgid to
-    -pidfile=path             Path of PID file to write and lock (default: no PID file)
+    -chroot=path              (*nix only) chroot to a directory (must set UID, GID) ("/" disables)
+    -daemon=0|1               (*nix only) run as daemon? (doesn't fork)
+    -dropprivs=0|1            (*nix only) drop privileges?
+    -fork=0|1                 (*nix only) fork?
+    -uid=username             (*nix only) UID or username to setuid to
+    -gid=groupname            (*nix only) GID or group name to setgid to
+    -pidfile=path             (*nix only) Path of PID file to write and lock (default: no PID file)
     -cpuprofile=path          Write CPU profile to file
     -debugserveraddr=ip:port  Bind the net/http DefaultServeMux to the given address
                               (expvars, pprof handlers will be registered; intended for debug use only;
                                set UsesDefaultHTTP in the Info type to disable the presence of this flag)
+    -service=start|stop|install|remove  (Windows only) Service control.
 
 Licence
 =======

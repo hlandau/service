@@ -1,6 +1,6 @@
 package service_test
 
-import "github.com/hlandau/degoutils/service"
+import "github.com/hlandau/service"
 
 // The following example illustrates the minimal skeleton structure to
 // implement a daemon. This example can run as a service on Windows or a daemon
