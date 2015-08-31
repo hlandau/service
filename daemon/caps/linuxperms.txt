@@ -1,0 +1,70 @@
+PROCESS STATE
+
+  Root Directory      ; ok
+  Current Directory   ; ok
+
+  Real User ID        ; ok
+  Effective User ID   ; ok
+  Saved Set User ID   ; ok
+
+  Real Group ID       ; ok
+  Effective Group ID  ; ok
+  Saved Set Group ID  ; ok
+
+  Extra Group IDs     ; ok
+
+  FS User ID   ; managed automatically
+  FS Group ID  ; managed automatically
+
+  Permitted Capabilities
+  Inheritable Capabilities
+  Effective Capabilities
+
+  Capability Bounding Set  ; ok
+  Securebits          ; ok
+
+  NoNewPrivs          ; ok
+
+  Umask               ; ok
+
+  Session ID (setsid) ; ok
+
+  Resource Limits     ; ok
+    Maximum Core File Size
+    Maximum File Descriptors
+    Maximum Stack Size
+    Maximum Processes with Real User ID
+    Maximum File Size Creatable
+    Maximum Virtual Memory Size
+    Maximum Data Size
+
+  Seccomp             ; not used
+
+CAPABILITIES OF INTEREST
+  CAP_SYS_CHROOT
+  CAP_NET_BIND_SERVICE
+  CAP_SETPCAP
+  CAP_SETUID
+  CAP_SETGID
+  CAP_SYS_RESOURCE
+
+DAEMONIZATION PRELUDE
+  umask(0);
+  // (fork)
+  // setup stdin/stdout/stderr fds
+  setsid();
+  chdir("/");
+
+PRIVILEGE DESCENT
+  chdir("/");
+  set_rlimits();
+  set_securebits();
+  set_capability_bounding_set();
+  chroot(chrootDir);
+  setresgid(gid,gid,gid);
+  setgroups(groups);
+  setresuid(uid,uid,uid);
+  chdir("/");
+  verify_no_capabilities();
+  prctl(PR_SET_NO_NEW_PRIVS, 1);
+
