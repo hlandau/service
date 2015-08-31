@@ -1,3 +1,5 @@
+// +build !windows
+
 // Functions to assist with the writing of UNIX-style daemons in go.
 package daemon
 

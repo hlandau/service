@@ -6,7 +6,6 @@ import "sync"
 import "os"
 import "os/signal"
 import "syscall"
-import "gopkg.in/hlandau/service.v1/daemon"
 import "fmt"
 import "flag"
 import "net/http"
@@ -76,8 +75,6 @@ type Info struct {
 	// Path to created PID file.
 	pidFileName string
 }
-
-var EmptyChrootPath = daemon.EmptyChrootPath
 
 func (info *Info) main() {
 	err := info.maine()

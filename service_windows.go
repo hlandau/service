@@ -1,12 +1,14 @@
 package service
 
-import "github.com/btcsuite/winsvc/eventlog"
+//import "github.com/btcsuite/winsvc/eventlog"
 import "github.com/btcsuite/winsvc/mgr"
 import "github.com/btcsuite/winsvc/svc"
 import "flag"
 import "os"
 import "time"
 import "fmt"
+
+var EmptyChrootPath = ""
 
 var serviceFlag = fs.String("service", "", "service command (one of: start, stop, install, remove)")
 var _serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
@@ -24,9 +26,15 @@ type handler struct {
 	startedChan chan struct{}
 	stopChan    chan struct{}
 	status      string
+  dropped     bool
 }
 
 func (h *handler) DropPrivileges() error {
+	h.dropped = true
+	return nil
+}
+
+func (h *ihandler) DropPrivileges() error {
 	h.dropped = true
 	return nil
 }
@@ -42,7 +50,7 @@ func (h *handler) SetStarted() {
 	}
 }
 
-func (h *handler) StopChan() chan<- struct{} {
+func (h *handler) StopChan() <-chan struct{} {
 	return h.stopChan
 }
 
@@ -61,7 +69,7 @@ func (h *handler) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 	stopping := false
 
 	go func() {
-		err := info.RunFunc(h)
+		err := h.info.RunFunc(h)
 		doneChan <- err
 	}()
 
@@ -245,7 +253,7 @@ func (info *Info) stopService() error {
 func (info *Info) runAsService() error {
 	// TODO: event log
 
-	err = svc.Run(info.Name, &handler{info})
+	err := svc.Run(info.Name, &handler{info: info,})
 	if err != nil {
 		return err
 	}

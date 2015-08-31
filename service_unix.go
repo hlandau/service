@@ -1,3 +1,5 @@
+// +build !windows
+
 package service
 
 import "gopkg.in/hlandau/service.v1/passwd"
@@ -10,6 +12,8 @@ import "os"
 import "fmt"
 import "flag"
 import "strconv"
+
+var EmptyChrootPath = daemon.EmptyChrootPath
 
 var uidFlag = fs.String("uid", "", "UID to run as (default: don't drop privileges)")
 var _uidFlag = flag.String("uid", "", "UID to run as (default: don't drop privileges)")
