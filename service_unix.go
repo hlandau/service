@@ -3,7 +3,6 @@
 package service
 
 import "gopkg.in/hlandau/service.v1/passwd"
-import "github.com/hlandau/degoutils/log"
 import "gopkg.in/hlandau/service.v1/daemon"
 import "gopkg.in/hlandau/service.v1/daemon/pidfile"
 import "gopkg.in/hlandau/service.v1/sdnotify"
@@ -132,8 +131,7 @@ func (h *ihandler) DropPrivileges() error {
 	if *dropprivsFlag {
 		chrootErr, err := daemon.DropPrivileges(uid, gid, chrootPath)
 		if err != nil {
-			log.Errore(err, "cannot drop privileges")
-			return err
+			return fmt.Errorf("Failed to drop privileges: %v", err)
 		}
 		if chrootErr != nil && *chrootFlag != "" && *chrootFlag != "/" {
 			return fmt.Errorf("Failed to chroot: %v", chrootErr)
