@@ -73,6 +73,25 @@ The following flags are automatically registered via the "flag" package:
                                set UsesDefaultHTTP in the Info type to disable the presence of this flag)
     -service=start|stop|install|remove  (Windows only) Service control.
 
+Use with systemd
+================
+
+Here is an example systemd unit file with privilege dropping and auto-restart:
+
+    [Unit]
+    Description=short description of the daemon
+    ;; Optionally make the service dependent on other services
+    ;Requires=other.service
+
+    [Service]
+    Type=notify
+    ExecStart=/path/to/foobar/foobard -uid=foobar -gid=foobar -daemon
+    Restart=always
+    RestartSec=30
+
+    [Install]
+    WantedBy=multi-user.target
+
 Licence
 =======
 
