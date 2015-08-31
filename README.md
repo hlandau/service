@@ -16,7 +16,7 @@ This package enables you to easily write services in Go such that the following 
 
 Here's a usage example:
 
-    import "github.com/hlandau/service"
+    import "gopkg.in/hlandau/service.v1"
 
     func main() {
       service.Main(&service.Info{
@@ -52,6 +52,8 @@ Here's a usage example:
           },
       })
     }
+
+You should import the package as "gopkg.in/hlandau/service.v1". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
 
 Flags
 =====

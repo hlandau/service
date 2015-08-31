@@ -6,9 +6,9 @@ import "net"
 import "os"
 import "errors"
 import "github.com/hlandau/degoutils/log"
-import "github.com/hlandau/service/passwd"
-import "github.com/hlandau/service/daemon/setuid"
-import "github.com/hlandau/service/daemon/caps"
+import "gopkg.in/hlandau/service.v1/passwd"
+import "gopkg.in/hlandau/service.v1/daemon/setuid"
+import "gopkg.in/hlandau/service.v1/daemon/caps"
 import "path/filepath"
 
 // Absolute path to EXE which was invoked. This is set at init()-time

@@ -1,10 +1,10 @@
 package service
 
-import "github.com/hlandau/service/passwd"
+import "gopkg.in/hlandau/service.v1/passwd"
 import "github.com/hlandau/degoutils/log"
-import "github.com/hlandau/service/daemon"
-import "github.com/hlandau/service/daemon/pidfile"
-import "github.com/hlandau/service/sdnotify"
+import "gopkg.in/hlandau/service.v1/daemon"
+import "gopkg.in/hlandau/service.v1/daemon/pidfile"
+import "gopkg.in/hlandau/service.v1/sdnotify"
 import "github.com/ErikDubbelboer/gspt"
 import "os"
 import "fmt"
