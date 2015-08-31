@@ -1,6 +1,6 @@
 // Package service wraps all the complexity of writing daemons while enabling
 // seamless integration with OS service management facilities.
-package service
+package service // import "gopkg.in/hlandau/service.v1"
 
 import "sync"
 import "os"
