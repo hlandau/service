@@ -7,20 +7,24 @@ import "flag"
 import "os"
 import "time"
 import "fmt"
+import "gopkg.in/hlandau/service.v1/exepath"
 
 var EmptyChrootPath = ""
 
 var serviceFlag = fs.String("service", "", "service command (one of: start, stop, install, remove)")
 var _serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
 
+var errNotSupported = fmt.Errorf("not supported")
 func systemdUpdateStatus(status string) error {
-	return fmt.Errorf("not supported")
+	return errNotSupported
 }
 
 func setproctitle(status string) error {
-	return nil
+	return errNotSupported
 }
 
+// handler is used when running as a service.
+// Otherwise we use the generic ihandler.
 type handler struct {
 	info        *Info
 	startedChan chan struct{}
@@ -57,6 +61,7 @@ func (h *handler) StopChan() <-chan struct{} {
 func (h *handler) SetStatus(status string) {
 	h.status = status
 }
+
 
 func (h *handler) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
@@ -142,7 +147,7 @@ func (info *Info) installService() error {
 	}
 
 	// Install the service.
-	service, err = serviceManager.CreateService(svcName, exePath, mgr.Config{
+	service, err = serviceManager.CreateService(svcName, exepath.AbsExePath, mgr.Config{
 		DisplayName:  info.Title,
 		Description:  info.Description,
 		StartType:    mgr.StartAutomatic,
@@ -231,11 +236,7 @@ func (info *Info) controlService(c svc.Cmd, to svc.State) error {
 	}
 
 	// Wait.
-	timeout := time.Now().Add(10 * time.Second)
 	for status.State != to {
-		if timeout.Before(time.Now()) {
-			return fmt.Errorf("timeout waiting for service to go to state=%d", to)
-		}
 		time.Sleep(300 * time.Millisecond)
 		status, err = service.Query()
 		if err != nil {

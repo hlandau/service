@@ -8,24 +8,10 @@ import "net"
 import "os"
 import "errors"
 import "gopkg.in/hlandau/service.v1/passwd"
+import "gopkg.in/hlandau/service.v1/exepath"
 import "gopkg.in/hlandau/service.v1/daemon/setuid"
 import "gopkg.in/hlandau/service.v1/daemon/caps"
-import "path/filepath"
 import "fmt"
-
-// Absolute path to EXE which was invoked. This is set at init()-time
-// to ensure that argv[0] can be properly interpreted before chdir is called.
-var AbsExePath string
-
-func init() {
-	AbsExePath = os.Args[0]
-	dir, err := filepath.Abs(AbsExePath)
-	if err != nil {
-		return
-	}
-
-	AbsExePath = dir
-}
 
 // Initialises a daemon with recommended values. Called by Daemonize.
 //
@@ -54,11 +40,11 @@ func Fork() (isParent bool, err error) {
 	}
 
 	newArgs := make([]string, 0, len(os.Args))
-	newArgs = append(newArgs, AbsExePath)
+	newArgs = append(newArgs, exepath.AbsExePath)
 	newArgs = append(newArgs, os.Args[1:]...)
 	newArgs = append(newArgs, forkedArg)
 
-	proc, err := os.StartProcess(AbsExePath, newArgs, &os.ProcAttr{})
+	proc, err := os.StartProcess(exepath.AbsExePath, newArgs, &os.ProcAttr{})
 	if err != nil {
 		return true, err
 	}

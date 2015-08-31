@@ -23,7 +23,7 @@ var cpuProfileFlag = fs.String("cpuprofile", "", "Write CPU profile to file")
 var _cpuProfileFlag = flag.String("cpuprofile", "", "Write CPU profile to file")
 
 func init() {
-	expvar.NewString("startTime").Set(time.Now().String())
+	expvar.NewString("service.startTime").Set(time.Now().String())
 }
 
 // This function should typically be called directly from func main(). It takes
@@ -62,11 +62,13 @@ type Info struct {
 	Title       string // Optional. Friendly name for the service, e.g. "Foobar Web Server"
 	Description string // Optional. Single line description for the service
 
-	AllowRoot     bool   // May the service run as root? If false, the service will refuse to run as root.
+	AllowRoot     bool   // May the service run as root? If false, the service will refuse to run as root unless privilege dropping is set.
 	DefaultChroot string // Default path to chroot to. Use this if the service can be chrooted without consequence.
 	NoBanSuid     bool   // Set to true if the ability to execute suid binaries must be retained.
 
-	UsesDefaultHTTP bool // Set to true if the service uses the default HTTP server instance.
+  // Set to true if the service uses the default HTTP serve mux. This disables
+  // the -debugserveraddr option.
+	UsesDefaultHTTP bool
 
 	// Are we being started by systemd with [Service] Type=notify?
 	// If so, we can issue service status notifications to systemd.
@@ -79,7 +81,7 @@ type Info struct {
 func (info *Info) main() {
 	err := info.maine()
 	if err != nil {
-		fmt.Printf("Error in service: %+v\n", err)
+		fmt.Fprintf(os.Stderr, "Error in service: %+v\n", err)
 		os.Exit(1)
 	}
 }
@@ -128,7 +130,7 @@ func (info *Info) commonPre() error {
 		go func() {
 			err := http.ListenAndServe(*debugServerAddrFlag, nil)
 			if err != nil {
-				fmt.Printf("Couldn't start debug server: %+v\n", err)
+				fmt.Fprintf(os.Stderr, "Couldn't start debug server: %+v\n", err)
 			}
 		}()
 	}

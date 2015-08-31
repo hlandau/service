@@ -141,7 +141,7 @@ func (h *ihandler) DropPrivileges() error {
 	}
 
 	if !h.info.AllowRoot && daemon.IsRoot() {
-		return fmt.Errorf("Daemon must not run as root or with capabilities")
+		return fmt.Errorf("Daemon must not run as root or with capabilities; run as non-root user or use -uid")
 	}
 
 	h.dropped = true
