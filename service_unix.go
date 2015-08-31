@@ -1,7 +1,8 @@
+// +package !windows
+
 package service
 
 import "gopkg.in/hlandau/service.v1/passwd"
-import "github.com/hlandau/degoutils/log"
 import "gopkg.in/hlandau/service.v1/daemon"
 import "gopkg.in/hlandau/service.v1/daemon/pidfile"
 import "gopkg.in/hlandau/service.v1/sdnotify"
@@ -10,6 +11,8 @@ import "os"
 import "fmt"
 import "flag"
 import "strconv"
+
+var EmptyChrootPath = daemon.EmptyChrootPath
 
 var uidFlag = fs.String("uid", "", "UID to run as (default: don't drop privileges)")
 var _uidFlag = flag.String("uid", "", "UID to run as (default: don't drop privileges)")
@@ -128,8 +131,7 @@ func (h *ihandler) DropPrivileges() error {
 	if *dropprivsFlag {
 		chrootErr, err := daemon.DropPrivileges(uid, gid, chrootPath)
 		if err != nil {
-			log.Errore(err, "cannot drop privileges")
-			return err
+			return fmt.Errorf("Failed to drop privileges: %v", err)
 		}
 		if chrootErr != nil && *chrootFlag != "" && *chrootFlag != "/" {
 			return fmt.Errorf("Failed to chroot: %v", chrootErr)

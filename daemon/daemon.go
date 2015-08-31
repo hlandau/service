@@ -1,3 +1,5 @@
+// +build !windows
+
 // Functions to assist with the writing of UNIX-style daemons in go.
 package daemon
 
@@ -5,11 +7,11 @@ import "syscall"
 import "net"
 import "os"
 import "errors"
-import "github.com/hlandau/degoutils/log"
 import "gopkg.in/hlandau/service.v1/passwd"
 import "gopkg.in/hlandau/service.v1/daemon/setuid"
 import "gopkg.in/hlandau/service.v1/daemon/caps"
 import "path/filepath"
+import "fmt"
 
 // Absolute path to EXE which was invoked. This is set at init()-time
 // to ensure that argv[0] can be properly interpreted before chdir is called.
@@ -140,20 +142,20 @@ func isRoot() bool {
 func DropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error) {
 	err = setRlimits()
 	if err != nil {
-		log.Errore(err, "set rlimits")
+		err = fmt.Errorf("failed to set rlimits: %v", err)
 		return
 	}
 
 	err = platformPreDropPrivileges()
 	if err != nil {
-		log.Errore(err, "platform pre drop privileges")
+		err = fmt.Errorf("platformPreDropPrivileges failed: %v", err)
 		return
 	}
 
 	// chroot and set UID and GIDs
 	chrootErr, err = dropPrivileges(UID, GID, chrootDir)
 	if err != nil {
-		log.Errore(err, "inner drop privileges")
+		err = fmt.Errorf("dropPrivileges failed: %v", err)
 		return
 	}
 
@@ -164,13 +166,13 @@ func DropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error)
 
 	err = ensureNoPrivs()
 	if err != nil {
-		log.Errore(err, "ensure no privs")
+		err = fmt.Errorf("ensure no privs failed: %v", err)
 		return
 	}
 
 	err = platformPostDropPrivileges()
 	if err != nil {
-		log.Errore(err, "platform post drop privileges")
+		err = fmt.Errorf("platformPostDropPrivileges failed: %v", err)
 		return
 	}
 
@@ -214,7 +216,9 @@ func dropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error)
 			// We can't setuid, so maybe we only have a few caps.
 			// Drop them.
 			err = caps.DropCaps()
-			log.Errore(err, "cannot drop caps")
+			if err != nil {
+				err = fmt.Errorf("cannot drop caps: %v", err)
+			}
 			return
 		} else {
 			return

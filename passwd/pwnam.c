@@ -1,3 +1,5 @@
+// +build !windows
+
 #define _POSIX_C_SOURCE 1
 #include <sys/types.h>
 #include <pwd.h>

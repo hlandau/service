@@ -1,4 +1,5 @@
-// +build unix
+// +build !windows
+
 package passwd
 
 import "strconv"

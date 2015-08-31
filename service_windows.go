@@ -1,12 +1,14 @@
 package service
 
-import "github.com/btcsuite/winsvc/eventlog"
+//import "github.com/btcsuite/winsvc/eventlog"
 import "github.com/btcsuite/winsvc/mgr"
 import "github.com/btcsuite/winsvc/svc"
 import "flag"
 import "os"
 import "time"
 import "fmt"
+
+var EmptyChrootPath = ""
 
 var serviceFlag = fs.String("service", "", "service command (one of: start, stop, install, remove)")
 var _serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
@@ -245,7 +247,7 @@ func (info *Info) stopService() error {
 func (info *Info) runAsService() error {
 	// TODO: event log
 
-	err = svc.Run(info.Name, &handler{info})
+  err = svc.Run(info.Name, &handler{info: info,})
 	if err != nil {
 		return err
 	}
