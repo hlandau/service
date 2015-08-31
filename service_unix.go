@@ -145,3 +145,5 @@ func (h *ihandler) DropPrivileges() error {
 	h.dropped = true
 	return nil
 }
+
+// © 2015 Hugo Landau <hlandau@devever.net>  ISC License

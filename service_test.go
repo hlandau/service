@@ -44,3 +44,5 @@ func Example() {
 		},
 	})
 }
+
+// © 2015 Hugo Landau <hlandau@devever.net>  ISC License
