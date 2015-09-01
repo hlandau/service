@@ -1,18 +1,20 @@
 package exepath
 
-import "os"
-import "path/filepath"
+import (
+	"os"
+	"path/filepath"
+)
 
 // Absolute path to EXE which was invoked. This is set at init()-time
 // to ensure that argv[0] can be properly interpreted before chdir is called.
-var AbsExePath string
+var Abs string
 
 func init() {
-	AbsExePath = os.Args[0]
-	dir, err := filepath.Abs(AbsExePath)
+	Abs = os.Args[0]
+	dir, err := filepath.Abs(Abs)
 	if err != nil {
 		return
 	}
 
-	AbsExePath = dir
+	Abs = dir
 }

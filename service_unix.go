@@ -2,15 +2,17 @@
 
 package service
 
-import "gopkg.in/hlandau/service.v1/passwd"
-import "gopkg.in/hlandau/service.v1/daemon"
-import "gopkg.in/hlandau/service.v1/daemon/pidfile"
-import "gopkg.in/hlandau/service.v1/sdnotify"
-import "github.com/ErikDubbelboer/gspt"
-import "os"
-import "fmt"
-import "flag"
-import "strconv"
+import (
+	"flag"
+	"fmt"
+	"github.com/ErikDubbelboer/gspt"
+	"gopkg.in/hlandau/service.v1/daemon"
+	"gopkg.in/hlandau/service.v1/daemon/pidfile"
+	"gopkg.in/hlandau/service.v1/passwd"
+	"gopkg.in/hlandau/service.v1/sdnotify"
+	"os"
+	"strconv"
+)
 
 // This will always point to a path which the platform guarantees is an empty
 // directory. You can use it as your default chroot path if your service doesn't
@@ -20,23 +22,25 @@ import "strconv"
 // points to that.
 var EmptyChrootPath = daemon.EmptyChrootPath
 
-var uidFlag = fs.String("uid", "", "UID to run as (default: don't drop privileges)")
-var _uidFlag = flag.String("uid", "", "UID to run as (default: don't drop privileges)")
-var gidFlag = fs.String("gid", "", "GID to run as (default: don't drop privileges)")
-var _gidFlag = flag.String("gid", "", "GID to run as (default: don't drop privileges)")
-var daemonizeFlag = fs.Bool("daemon", false, "Run as daemon? (doesn't fork)")
-var _daemonizeFlag = flag.Bool("daemon", false, "Run as daemon? (doesn't fork)")
-var chrootFlag = fs.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
-var _chrootFlag = flag.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
-var pidfileFlag = fs.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
-var _pidfileFlag = flag.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
-var dropprivsFlag = fs.Bool("dropprivs", true, "Drop privileges?")
-var _dropprivsFlag = flag.Bool("dropprivs", true, "Drop privileges?")
-var forkFlag = fs.Bool("fork", false, "Fork? (implies -daemon)")
-var _forkFlag = flag.Bool("fork", false, "Fork? (implies -daemon)")
+var (
+	uidFlag        = fs.String("uid", "", "UID to run as (default: don't drop privileges)")
+	_uidFlag       = flag.String("uid", "", "UID to run as (default: don't drop privileges)")
+	gidFlag        = fs.String("gid", "", "GID to run as (default: don't drop privileges)")
+	_gidFlag       = flag.String("gid", "", "GID to run as (default: don't drop privileges)")
+	daemonizeFlag  = fs.Bool("daemon", false, "Run as daemon? (doesn't fork)")
+	_daemonizeFlag = flag.Bool("daemon", false, "Run as daemon? (doesn't fork)")
+	chrootFlag     = fs.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
+	_chrootFlag    = flag.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
+	pidfileFlag    = fs.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
+	_pidfileFlag   = flag.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
+	dropprivsFlag  = fs.Bool("dropprivs", true, "Drop privileges?")
+	_dropprivsFlag = flag.Bool("dropprivs", true, "Drop privileges?")
+	forkFlag       = fs.Bool("fork", false, "Fork? (implies -daemon)")
+	_forkFlag      = flag.Bool("fork", false, "Fork? (implies -daemon)")
+)
 
 func systemdUpdateStatus(status string) error {
-	return sdnotify.SdNotify(status)
+	return sdnotify.Send(status)
 }
 
 func setproctitle(status string) error {

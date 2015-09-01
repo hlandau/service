@@ -2,12 +2,16 @@
 
 package pidfile
 
-import "fmt"
-import "os"
-import "syscall"
+import (
+	"fmt"
+	"os"
+	"syscall"
+)
 
-var pidFile *os.File
-var pidFileName string
+var (
+	pidFile     *os.File
+	pidFileName string
+)
 
 // Opens a PID file. The PID of the current process is written to the file
 // and the file is locked. The file is kept open until the process terminates.

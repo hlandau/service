@@ -1,7 +1,9 @@
 package daemon
 
-import "syscall"
-import "fmt"
+import (
+	"fmt"
+	"syscall"
+)
 
 func setSecurebits() error {
 	err := prctl(pPR_SET_SECUREBITS,

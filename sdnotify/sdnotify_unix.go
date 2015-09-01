@@ -16,12 +16,12 @@ var sdNotifyMutex sync.Mutex
 var sdNotifySocket *net.UnixConn
 var sdNotifyInited bool
 
-// SdNotify sends a message to the init daemon. It is common to ignore the error.
+// Send sends a message to the init daemon. It is common to ignore the error.
 //
 // Taken from coreos/go-systemd/daemon. Since that code closes the socket
 // after each call it won't work in a chroot. It is customized here to keep
 // the socket open.
-func SdNotify(state string) error {
+func Send(state string) error {
 	sdNotifyMutex.Lock()
 	defer sdNotifyMutex.Unlock()
 

@@ -4,7 +4,7 @@ package caps
 
 const platformSupportsCaps = false
 
-func ensureNoCaps() error {
+func haveAny() bool {
 	return nil
 }
 

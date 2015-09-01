@@ -2,25 +2,29 @@
 // seamless integration with OS service management facilities.
 package service // import "gopkg.in/hlandau/service.v1"
 
-import "sync"
-import "os"
-import "os/signal"
-import "syscall"
-import "fmt"
-import "flag"
-import "net/http"
-import "runtime/pprof"
-import _ "net/http/pprof" // register pprof handler for debug server
-import "expvar"
-import "time"
+import (
+	"expvar"
+	"flag"
+	"fmt"
+	"net/http"
+	_ "net/http/pprof" // register pprof handler for debug server
+	"os"
+	"os/signal"
+	"runtime/pprof"
+	"sync"
+	"syscall"
+	"time"
+)
 
 // Flags
 
-var fs = flag.NewFlagSet("Service Options", flag.ContinueOnError)
-var debugServerAddrFlag *string
-var _debugServerAddrFlag *string
-var cpuProfileFlag = fs.String("cpuprofile", "", "Write CPU profile to file")
-var _cpuProfileFlag = flag.String("cpuprofile", "", "Write CPU profile to file")
+var (
+	fs                   = flag.NewFlagSet("Service Options", flag.ContinueOnError)
+	debugServerAddrFlag  *string
+	_debugServerAddrFlag *string
+	cpuProfileFlag       = fs.String("cpuprofile", "", "Write CPU profile to file")
+	_cpuProfileFlag      = flag.String("cpuprofile", "", "Write CPU profile to file")
+)
 
 func init() {
 	expvar.NewString("service.startTime").Set(time.Now().String())

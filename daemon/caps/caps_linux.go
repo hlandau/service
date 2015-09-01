@@ -64,16 +64,11 @@ dropcaps(void) {
 
 */
 import "C"
-import "fmt"
 
 const platformSupportsCaps = true
 
-func ensureNone() error {
-	if C.hasanycap() != 0 {
-		return fmt.Errorf("still have caps")
-	}
-
-	return nil
+func haveAny() bool {
+	return C.hasanycap() != 0
 }
 
 func drop() error {

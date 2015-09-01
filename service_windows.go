@@ -1,20 +1,23 @@
 package service
 
-//import "github.com/btcsuite/winsvc/eventlog"
-import "github.com/btcsuite/winsvc/mgr"
-import "github.com/btcsuite/winsvc/svc"
-import "flag"
-import "os"
-import "time"
-import "fmt"
-import "gopkg.in/hlandau/service.v1/exepath"
+import (
+	"flag"
+	"fmt"
+	"github.com/btcsuite/winsvc/mgr"
+	"github.com/btcsuite/winsvc/svc"
+	"gopkg.in/hlandau/service.v1/exepath"
+	"os"
+	"time"
+)
 
 // This is always empty on Windows, as Windows does not support chrooting.
 // It is present to allow code relying upon it to compile upon all platforms.
 var EmptyChrootPath = ""
 
-var serviceFlag = fs.String("service", "", "service command (one of: start, stop, install, remove)")
-var _serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
+var (
+	serviceFlag  = fs.String("service", "", "service command (one of: start, stop, install, remove)")
+	_serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
+)
 
 var errNotSupported = fmt.Errorf("not supported")
 
@@ -149,7 +152,7 @@ func (info *Info) installService() error {
 	}
 
 	// Install the service.
-	service, err = serviceManager.CreateService(svcName, exepath.AbsExePath, mgr.Config{
+	service, err = serviceManager.CreateService(svcName, exepath.Abs, mgr.Config{
 		DisplayName:  info.Title,
 		Description:  info.Description,
 		StartType:    mgr.StartAutomatic,

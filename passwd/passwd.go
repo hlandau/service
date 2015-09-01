@@ -4,9 +4,11 @@
 // membership.
 package passwd
 
-import "strconv"
-import "fmt"
-import "unsafe"
+import (
+	"fmt"
+	"strconv"
+	"unsafe"
+)
 
 /*
 #include <sys/types.h>

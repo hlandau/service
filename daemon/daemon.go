@@ -4,15 +4,17 @@
 // daemons in go.
 package daemon
 
-import "syscall"
-import "net"
-import "os"
-import "errors"
-import "gopkg.in/hlandau/service.v1/passwd"
-import "gopkg.in/hlandau/service.v1/exepath"
-import "gopkg.in/hlandau/service.v1/daemon/setuid"
-import "gopkg.in/hlandau/service.v1/daemon/caps"
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"gopkg.in/hlandau/service.v1/daemon/caps"
+	"gopkg.in/hlandau/service.v1/daemon/setuid"
+	"gopkg.in/hlandau/service.v1/exepath"
+	"gopkg.in/hlandau/service.v1/passwd"
+	"net"
+	"os"
+	"syscall"
+)
 
 // Initialises a daemon with recommended values. Called by Daemonize.
 //
@@ -41,11 +43,11 @@ func Fork() (isParent bool, err error) {
 	}
 
 	newArgs := make([]string, 0, len(os.Args))
-	newArgs = append(newArgs, exepath.AbsExePath)
+	newArgs = append(newArgs, exepath.Abs)
 	newArgs = append(newArgs, os.Args[1:]...)
 	newArgs = append(newArgs, forkedArg)
 
-	proc, err := os.StartProcess(exepath.AbsExePath, newArgs, &os.ProcAttr{})
+	proc, err := os.StartProcess(exepath.Abs, newArgs, &os.ProcAttr{})
 	if err != nil {
 		return true, err
 	}
@@ -107,7 +109,7 @@ func Daemonize() error {
 // On supported platforms which support capabilities (currently Linux), any
 // capabilities are present.
 func IsRoot() bool {
-	return caps.EnsureNone() != nil || isRoot()
+	return caps.HaveAny() || isRoot()
 }
 
 func isRoot() bool {
@@ -284,7 +286,11 @@ func ensureNoPrivs() error {
 		return errors.New("Can't drop privileges - setgid(0) still succeeded")
 	}
 
-	return caps.EnsureNone()
+	if caps.HaveAny() {
+		return errors.New("Still have some capabilities after attempting to drop them")
+	}
+
+	return nil
 }
 
 // This is set to a path which should be empty on the target platform.

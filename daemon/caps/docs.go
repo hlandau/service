@@ -4,10 +4,9 @@ package caps
 // This constant will be true iff the target platform supports capabilities.
 const PlatformSupportsCaps = platformSupportsCaps
 
-// Ensure that no capabilities are available to the program. Returns error iff
-// this is not the case.
-func EnsureNone() error {
-	return ensureNone()
+// Returns true iff there are no capabilities available to the program.
+func HaveAny() bool {
+	return haveAny()
 }
 
 // Attempt to drop all capabilities.
