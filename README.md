@@ -62,6 +62,9 @@ The following flags are automatically registered via the "flag" package:
 
     -chroot=path              (*nix only) chroot to a directory (must set UID, GID) ("/" disables)
     -daemon=0|1               (*nix only) run as daemon? (doesn't fork)
+                                (remaps stdin, stdout, stderr to /dev/null;
+                                 changes working directory to /;
+                                 sets umask to 0; calls setsid)
     -dropprivs=0|1            (*nix only) drop privileges?
     -fork=0|1                 (*nix only) fork?
     -uid=username             (*nix only) UID or username to setuid to
