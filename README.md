@@ -149,6 +149,15 @@ Bugs
     error occurs. Because of this, you must pass any flags used by this
     library before any flags used by your application.
 
+  - Testing would be nice, but a library of this nature isn't too susceptible
+    to unit testing. Something to think about.
+
+Platform Support
+================
+
+This package should work on Windows or any UNIX-like platform, but it is currently
+tested only on Windows and Linux.
+
 Licence
 =======
 
