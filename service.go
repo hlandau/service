@@ -26,8 +26,19 @@ var (
 	_cpuProfileFlag      = flag.String("cpuprofile", "", "Write CPU profile to file")
 )
 
+type nullWriter struct{}
+
+func (nw nullWriter) Write(p []byte) (n int, err error) {
+  return len(p), nil
+}
+
 func init() {
 	expvar.NewString("service.startTime").Set(time.Now().String())
+
+  // Suppress usage output. Any errors will be complained about when the user
+  // parses flags anyway.
+  fs.Usage = func() {}
+  fs.SetOutput(nullWriter{})
 }
 
 // This function should typically be called directly from func main(). It takes

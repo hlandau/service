@@ -92,6 +92,16 @@ Here is an example systemd unit file with privilege dropping and auto-restart:
     [Install]
     WantedBy=multi-user.target
 
+Bugs
+====
+
+  - This library has to call flag.Parse() to figure out what to do before it
+    calls your code. It uses a separate flagset to do this, because it seems
+    impolite to call flag.Parse() twice. This flagset is unaware of any flags
+    used by the application. Thus, if an application flag is passed, a parse
+    error occurs. Because of this, you must pass any flags used by this
+    library before any flags used by your application.
+
 Licence
 =======
 
