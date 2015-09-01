@@ -73,6 +73,40 @@ The following flags are automatically registered via the "flag" package:
                                set UsesDefaultHTTP in the Info type to disable the presence of this flag)
     -service=start|stop|install|remove  (Windows only) Service control.
 
+Use on Windows
+==============
+
+To install as a service, it require administrator's privileges. So it need to put manifest file like below.
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <dependency>
+        <dependentAssembly>
+            <assemblyIdentity
+                type="win32"
+                name="Microsoft.Windows.Common-Controls"
+                version="6.0.0.0"
+                processorArchitecture="X86"
+                publicKeyToken="6595b64144ccf1df"
+                language="*"
+            />
+        </dependentAssembly>
+    </dependency>
+    <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+        <security>
+            <requestedPrivileges>
+                <requestedExecutionLevel 
+                     level="requireAdministrator" 
+                     uiAccess="false"/>
+            </requestedPrivileges>
+        </security>
+    </trustInfo>
+</assembly>
+```
+
+Put this xml file as `<program-name>.exe.manifest`. UAC dialog should be displayed.
+
 Use with systemd
 ================
 
