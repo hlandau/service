@@ -1,5 +1,5 @@
 service: Write daemons in Go
-----------------------------
+============================
 
 [![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v1)
 
@@ -56,7 +56,7 @@ Here's a usage example:
 You should import the package as "gopkg.in/hlandau/service.v1". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
 
 Flags
-=====
+-----
 
 The following flags are automatically registered via the "flag" package:
 
@@ -77,7 +77,7 @@ The following flags are automatically registered via the "flag" package:
     -service=start|stop|install|remove  (Windows only) Service control.
 
 Using as a Windows service
-==========================
+--------------------------
 
 You can use the `-service=install` and `-service=remove` flags to install and
 remove the service as a Windows service. Please note that:
@@ -121,7 +121,7 @@ You can use this manifest either as a sidecar file by naming it `<exe-name>.exe.
 For more information on manifests, see MSDN.
 
 Use with systemd
-================
+----------------
 
 Here is an example systemd unit file with privilege dropping and auto-restart:
 
@@ -140,7 +140,7 @@ Here is an example systemd unit file with privilege dropping and auto-restart:
     WantedBy=multi-user.target
 
 Bugs
-====
+----
 
   - This library has to call flag.Parse() to figure out what to do before it
     calls your code. It uses a separate flagset to do this, because it seems
@@ -153,13 +153,13 @@ Bugs
     to unit testing. Something to think about.
 
 Platform Support
-================
+----------------
 
 This package should work on Windows or any UNIX-like platform, but it is currently
 tested only on Windows and Linux.
 
 Licence
-=======
+-------
 
     ISC License
 
