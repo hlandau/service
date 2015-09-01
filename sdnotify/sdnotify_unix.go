@@ -5,7 +5,11 @@ import "net"
 import "sync"
 import "os"
 
-var SdNotifyNoSocket = errors.New("No socket")
+// Error returned if no systemd notify protocol socket can be found.
+//
+// This is an indication that the service is not running under systemd or
+// Type=notify is not set in the systemd unit file.
+var ErrNoSocket = errors.New("No socket")
 
 // sdNotifySocket
 var sdNotifyMutex sync.Mutex
@@ -30,7 +34,7 @@ func SdNotify(state string) error {
 		}
 
 		if socketAddr.Name == "" {
-			return SdNotifyNoSocket
+			return ErrNoSocket
 		}
 
 		conn, err := net.DialUnix(socketAddr.Net, nil, socketAddr)
@@ -42,7 +46,7 @@ func SdNotify(state string) error {
 	}
 
 	if sdNotifySocket == nil {
-		return SdNotifyNoSocket
+		return ErrNoSocket
 	}
 
 	_, err := sdNotifySocket.Write([]byte(state))

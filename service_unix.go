@@ -12,6 +12,12 @@ import "fmt"
 import "flag"
 import "strconv"
 
+// This will always point to a path which the platform guarantees is an empty
+// directory. You can use it as your default chroot path if your service doesn't
+// access the filesystem after it's started.
+//
+// On Linux, the FHS provides that "/var/empty" is an empty directory, so it
+// points to that.
 var EmptyChrootPath = daemon.EmptyChrootPath
 
 var uidFlag = fs.String("uid", "", "UID to run as (default: don't drop privileges)")

@@ -9,6 +9,8 @@ import "time"
 import "fmt"
 import "gopkg.in/hlandau/service.v1/exepath"
 
+// This is always empty on Windows, as Windows does not support chrooting.
+// It is present to allow code relying upon it to compile upon all platforms.
 var EmptyChrootPath = ""
 
 var serviceFlag = fs.String("service", "", "service command (one of: start, stop, install, remove)")

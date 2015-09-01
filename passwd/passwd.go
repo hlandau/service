@@ -1,5 +1,7 @@
 // +build !windows
 
+// Package passwd facilitates the resolution of user and group names and
+// membership.
 package passwd
 
 import "strconv"
@@ -16,6 +18,8 @@ int de_gid_for_uid(uid_t uid, gid_t *gid);
 */
 import "C"
 
+// Parse a UID string. The string should either be a username or a decimal user
+// ID. Returns the user ID or an error.
 func ParseUID(uid string) (int, error) {
 	n, err := strconv.ParseUint(uid, 10, 31)
 	if err != nil {
@@ -24,6 +28,8 @@ func ParseUID(uid string) (int, error) {
 	return int(n), nil
 }
 
+// Parse a GID string. The string should either be a group name or a decimal group
+// ID. Returns the group ID or an error.
 func ParseGID(gid string) (int, error) {
 	n, err := strconv.ParseUint(gid, 10, 31)
 	if err != nil {
@@ -32,14 +38,16 @@ func ParseGID(gid string) (int, error) {
 	return int(n), nil
 }
 
+// Given a UID string (a username or decimal user ID string), find the primary
+// GID for the given UID and return it.
 func GetGIDForUID(uid string) (int, error) {
 	var x C.gid_t
 	n, err := ParseUID(uid)
 	if err != nil {
 		return 0, err
 	}
-	uid_ := C.uid_t(n)
-	if C.de_gid_for_uid(uid_, &x) < 0 {
+	uidn := C.uid_t(n)
+	if C.de_gid_for_uid(uidn, &x) < 0 {
 		return 0, fmt.Errorf("cannot get GID for UID: %d", n)
 	}
 	return int(x), nil
@@ -51,14 +59,16 @@ func de_gid_cb(p unsafe.Pointer, gid C.gid_t) {
 	f(gid)
 }
 
+// Given a group ID, returns an array of the supplementary group IDs that group
+// implies.
 func GetExtraGIDs(gid int) (gids []int, err error) {
-	gid_ := C.gid_t(gid)
+	gidn := C.gid_t(gid)
 
 	f := func(gid C.gid_t) {
 		gids = append(gids, int(gid))
 	}
 
-	if C.de_get_extra_gids(gid_, unsafe.Pointer(&f)) < 0 {
+	if C.de_get_extra_gids(gidn, unsafe.Pointer(&f)) < 0 {
 		return nil, fmt.Errorf("cannot retrieve additional groups list for GID %d", gid)
 	}
 

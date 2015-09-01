@@ -10,7 +10,7 @@ import "fmt"
 import "flag"
 import "net/http"
 import "runtime/pprof"
-import _ "net/http/pprof"
+import _ "net/http/pprof" // register pprof handler for debug server
 import "expvar"
 import "time"
 
@@ -32,6 +32,9 @@ func Main(info *Info) {
 	info.main()
 }
 
+// The interface between the service library and the application-specific code.
+// The application calls the methods in the provided instance of this interface
+// at various stages in its lifecycle.
 type Manager interface {
 	// Must be called when the service is ready to drop privileges.
 	// This must be called before SetStarted().

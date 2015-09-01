@@ -1,6 +1,7 @@
 // +build !windows
 
-// Functions to assist with the writing of UNIX-style daemons in go.
+// Package daemon provides functions to assist with the writing of UNIX-style
+// daemons in go.
 package daemon
 
 import "syscall"
@@ -106,7 +107,7 @@ func Daemonize() error {
 // On supported platforms which support capabilities (currently Linux), any
 // capabilities are present.
 func IsRoot() bool {
-	return caps.EnsureNoCaps() != nil || isRoot()
+	return caps.EnsureNone() != nil || isRoot()
 }
 
 func isRoot() bool {
@@ -201,17 +202,13 @@ func dropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error)
 		if caps.PlatformSupportsCaps {
 			// We can't setuid, so maybe we only have a few caps.
 			// Drop them.
-			err = caps.DropCaps()
+			err = caps.Drop()
 			if err != nil {
 				err = fmt.Errorf("cannot drop caps: %v", err)
 			}
-			return
-		} else {
-			return
 		}
 	}
 
-	err = nil
 	return
 }
 
@@ -287,7 +284,10 @@ func ensureNoPrivs() error {
 		return errors.New("Can't drop privileges - setgid(0) still succeeded")
 	}
 
-	return caps.EnsureNoCaps()
+	return caps.EnsureNone()
 }
 
+// This is set to a path which should be empty on the target platform.
+//
+// On Linux, the FHS provides that "/var/empty" should always be empty.
 var EmptyChrootPath = "/var/empty"

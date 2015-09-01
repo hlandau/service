@@ -66,9 +66,9 @@ dropcaps(void) {
 import "C"
 import "fmt"
 
-const PlatformSupportsCaps = true
+const platformSupportsCaps = true
 
-func EnsureNoCaps() error {
+func ensureNone() error {
 	if C.hasanycap() != 0 {
 		return fmt.Errorf("still have caps")
 	}
@@ -76,7 +76,7 @@ func EnsureNoCaps() error {
 	return nil
 }
 
-func DropCaps() error {
+func drop() error {
 	eno := C.dropcaps()
 	if eno != 0 {
 		return syscall.Errno(eno)

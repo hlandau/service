@@ -2,12 +2,12 @@
 
 package caps
 
-const PlatformSupportsCaps = false
+const platformSupportsCaps = false
 
-func EnsureNoCaps() error {
+func ensureNoCaps() error {
 	return nil
 }
 
-func DropCaps() error {
+func dropCaps() error {
 	return nil
 }
