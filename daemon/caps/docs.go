@@ -7,10 +7,10 @@ const PlatformSupportsCaps = platformSupportsCaps
 // Ensure that no capabilities are available to the program. Returns error iff
 // this is not the case.
 func EnsureNone() error {
-  return ensureNone()
+	return ensureNone()
 }
 
 // Attempt to drop all capabilities.
 func Drop() error {
-  return drop()
+	return drop()
 }

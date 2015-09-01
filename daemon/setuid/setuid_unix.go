@@ -4,7 +4,7 @@ package setuid
 
 // Setuid calls the *NIX setuid() function.
 func Setuid(uid int) error {
-  return setuid(uid)
+	return setuid(uid)
 }
 
 // Setgid calls the *NIX setgid() function.
