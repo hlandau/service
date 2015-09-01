@@ -15,6 +15,7 @@ var serviceFlag = fs.String("service", "", "service command (one of: start, stop
 var _serviceFlag = flag.String("service", "", "service command (one of: start, stop, install, remove)")
 
 var errNotSupported = fmt.Errorf("not supported")
+
 func systemdUpdateStatus(status string) error {
 	return errNotSupported
 }
@@ -30,7 +31,7 @@ type handler struct {
 	startedChan chan struct{}
 	stopChan    chan struct{}
 	status      string
-  dropped     bool
+	dropped     bool
 }
 
 func (h *handler) DropPrivileges() error {
@@ -61,7 +62,6 @@ func (h *handler) StopChan() <-chan struct{} {
 func (h *handler) SetStatus(status string) {
 	h.status = status
 }
-
 
 func (h *handler) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
@@ -254,7 +254,7 @@ func (info *Info) stopService() error {
 func (info *Info) runAsService() error {
 	// TODO: event log
 
-	err := svc.Run(info.Name, &handler{info: info,})
+	err := svc.Run(info.Name, &handler{info: info})
 	if err != nil {
 		return err
 	}

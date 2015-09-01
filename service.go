@@ -66,8 +66,8 @@ type Info struct {
 	DefaultChroot string // Default path to chroot to. Use this if the service can be chrooted without consequence.
 	NoBanSuid     bool   // Set to true if the ability to execute suid binaries must be retained.
 
-  // Set to true if the service uses the default HTTP serve mux. This disables
-  // the -debugserveraddr option.
+	// Set to true if the service uses the default HTTP serve mux. This disables
+	// the -debugserveraddr option.
 	UsesDefaultHTTP bool
 
 	// Are we being started by systemd with [Service] Type=notify?

@@ -40,7 +40,7 @@ func GetGIDForUID(uid string) (int, error) {
 	}
 	uid_ := C.uid_t(n)
 	if C.de_gid_for_uid(uid_, &x) < 0 {
-		return 0, fmt.Errorf("cannot get GID for UID: %s", n)
+		return 0, fmt.Errorf("cannot get GID for UID: %d", n)
 	}
 	return int(x), nil
 }

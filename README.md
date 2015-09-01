@@ -1,7 +1,7 @@
 service: Write daemons in Go
 ----------------------------
 
-[![GoDoc](https://godoc.org/github.com/hlandau/service?status.svg)](https://godoc.org/github.com/hlandau/service)
+[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v1)
 
 This package enables you to easily write services in Go such that the following concerns are taken care of automatically:
 
@@ -38,7 +38,7 @@ Here's a usage example:
               // You must call DropPrivileges first.
               smgr.SetStarted()
 
-              // Optionally set a status
+              // Optionally set a status.
               smgr.SetStatus("foobar: running ok")
 
               // Wait until stop is requested.
