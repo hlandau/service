@@ -8,6 +8,6 @@ func haveAny() bool {
 	return false
 }
 
-func dropCaps() error {
+func drop() error {
 	return nil
 }
