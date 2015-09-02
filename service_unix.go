@@ -49,6 +49,19 @@ func setproctitle(status string) error {
 }
 
 func (info *Info) serviceMain() error {
+	if *forkFlag {
+		isParent, err := daemon.Fork()
+		if err != nil {
+			return err
+		}
+
+		if isParent {
+			os.Exit(0)
+		}
+
+		*daemonizeFlag = true
+	}
+
 	err := daemon.Init()
 	if err != nil {
 		return err
@@ -57,6 +70,13 @@ func (info *Info) serviceMain() error {
 	err = systemdUpdateStatus("\n")
 	if err == nil {
 		info.systemd = true
+	}
+
+	if *daemonizeFlag || info.systemd {
+		err := daemon.Daemonize()
+		if err != nil {
+			return err
+		}
 	}
 
 	if *pidfileFlag != "" {
@@ -84,26 +104,6 @@ func (info *Info) closePIDFile() {
 func (h *ihandler) DropPrivileges() error {
 	if h.dropped {
 		return nil
-	}
-
-	if *forkFlag {
-		isParent, err := daemon.Fork()
-		if err != nil {
-			return err
-		}
-
-		if isParent {
-			os.Exit(0)
-		}
-
-		*daemonizeFlag = true
-	}
-
-	if *daemonizeFlag || h.info.systemd {
-		err := daemon.Daemonize()
-		if err != nil {
-			return err
-		}
 	}
 
 	if *uidFlag != "" && *gidFlag == "" {

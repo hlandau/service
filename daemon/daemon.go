@@ -47,7 +47,14 @@ func Fork() (isParent bool, err error) {
 	newArgs = append(newArgs, os.Args[1:]...)
 	newArgs = append(newArgs, forkedArg)
 
-	proc, err := os.StartProcess(exepath.Abs, newArgs, &os.ProcAttr{})
+	// Start the child process.
+	//
+	// Pass along the standard FD for now - we'll remap them to /dev/null
+	// in due time. This ensures anything expecting these to exist isn't confused,
+	// and allows pre-daemonization failures to at least get output to somewhere.
+	proc, err := os.StartProcess(exepath.Abs, newArgs, &os.ProcAttr{
+		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
+	})
 	if err != nil {
 		return true, err
 	}
