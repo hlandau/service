@@ -16,42 +16,44 @@ This package enables you to easily write services in Go such that the following 
 
 Here's a usage example:
 
-    import "gopkg.in/hlandau/service.v1"
+```go
+import "gopkg.in/hlandau/service.v1"
 
-    func main() {
-      service.Main(&service.Info{
-          Title:       "Foobar Web Server",
-          Name:        "foobar",
-          Description: "Foobar Web Server is the greatest webserver ever.",
+func main() {
+  service.Main(&service.Info{
+      Title:       "Foobar Web Server",
+      Name:        "foobar",
+      Description: "Foobar Web Server is the greatest webserver ever.",
 
-          RunFunc: func(smgr service.Manager) error {
-              // Start up your service.
-              // ...
+      RunFunc: func(smgr service.Manager) error {
+          // Start up your service.
+          // ...
 
-              // Once initialization requiring root is done, call this.
-              err := smgr.DropPrivileges()
-              if err != nil {
-                  return err
-              }
+          // Once initialization requiring root is done, call this.
+          err := smgr.DropPrivileges()
+          if err != nil {
+              return err
+          }
 
-              // When it is ready to serve requests, call this.
-              // You must call DropPrivileges first.
-              smgr.SetStarted()
+          // When it is ready to serve requests, call this.
+          // You must call DropPrivileges first.
+          smgr.SetStarted()
 
-              // Optionally set a status.
-              smgr.SetStatus("foobar: running ok")
+          // Optionally set a status.
+          smgr.SetStatus("foobar: running ok")
 
-              // Wait until stop is requested.
-              <-smgr.StopChan()
+          // Wait until stop is requested.
+          <-smgr.StopChan()
 
-              // Do any necessary teardown.
-              // ...
+          // Do any necessary teardown.
+          // ...
 
-              // Done.
-              return nil
-          },
-      })
-    }
+          // Done.
+          return nil
+      },
+  })
+}
+```
 
 You should import the package as "gopkg.in/hlandau/service.v1". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
 
