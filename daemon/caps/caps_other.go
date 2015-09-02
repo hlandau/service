@@ -5,7 +5,7 @@ package caps
 const platformSupportsCaps = false
 
 func haveAny() bool {
-	return nil
+	return false
 }
 
 func dropCaps() error {
