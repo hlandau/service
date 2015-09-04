@@ -35,7 +35,6 @@ hasanycap(void) {
   cap_free(zc);
   return hasCap;
 }
-#include <stdio.h>
 
 static int
 dropcaps(void) {

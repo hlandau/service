@@ -1,0 +1,12 @@
+language: go
+os:
+  - linux
+  - osx
+go:
+  - 1.4
+  - tip
+sudo: false
+addons:
+  apt:
+    packages:
+      - libcap-dev

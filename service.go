@@ -20,10 +20,10 @@ import (
 
 var (
 	fs                   = flag.NewFlagSet("Service Options", flag.ContinueOnError)
-	debugServerAddrFlag  *string
-	_debugServerAddrFlag *string
 	cpuProfileFlag       = fs.String("cpuprofile", "", "Write CPU profile to file")
 	_cpuProfileFlag      = flag.String("cpuprofile", "", "Write CPU profile to file")
+	debugServerAddrFlag  = fs.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
+	_debugServerAddrFlag = flag.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
 )
 
 type nullWriter struct{}
@@ -116,8 +116,7 @@ func (info *Info) maine() error {
 	}
 
 	if !info.UsesDefaultHTTP {
-		debugServerAddrFlag = fs.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
-		_debugServerAddrFlag = flag.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
+		// ...
 	}
 
 	fs.Parse(os.Args[1:]) // ignore errors
@@ -144,7 +143,7 @@ func (info *Info) maine() error {
 }
 
 func (info *Info) commonPre() error {
-	if debugServerAddrFlag != nil && *debugServerAddrFlag != "" {
+	if debugServerAddrFlag != nil && *debugServerAddrFlag != "" && !info.UsesDefaultHTTP {
 		go func() {
 			err := http.ListenAndServe(*debugServerAddrFlag, nil)
 			if err != nil {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/ErikDubbelboer/gspt"
 	"gopkg.in/hlandau/service.v1/daemon"
+	"gopkg.in/hlandau/service.v1/daemon/bansuid"
 	"gopkg.in/hlandau/service.v1/daemon/pidfile"
 	"gopkg.in/hlandau/service.v1/passwd"
 	"gopkg.in/hlandau/service.v1/sdnotify"
@@ -33,10 +34,10 @@ var (
 	_chrootFlag    = flag.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
 	pidfileFlag    = fs.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
 	_pidfileFlag   = flag.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
-	dropprivsFlag  = fs.Bool("dropprivs", true, "Drop privileges?")
-	_dropprivsFlag = flag.Bool("dropprivs", true, "Drop privileges?")
-	forkFlag       = fs.Bool("fork", false, "Fork? (implies -daemon)")
-	_forkFlag      = flag.Bool("fork", false, "Fork? (implies -daemon)")
+	//dropprivsFlag  = fs.Bool("dropprivs", true, "Drop privileges?")
+	//_dropprivsFlag = flag.Bool("dropprivs", true, "Drop privileges?")
+	forkFlag  = fs.Bool("fork", false, "Fork? (implies -daemon)")
+	_forkFlag = flag.Bool("fork", false, "Fork? (implies -daemon)")
 )
 
 func systemdUpdateStatus(status string) error {
@@ -106,6 +107,16 @@ func (h *ihandler) DropPrivileges() error {
 		return nil
 	}
 
+	// Extras
+	if !h.info.NoBanSuid {
+		// Try and bansuid, but don't process errors. It may not be supported on
+		// the current platform, and Linux won't allow SECUREBITS to be set unless
+		// one is root (or has the right capability). This is basically a
+		// best-effort thing.
+		bansuid.BanSuid()
+	}
+
+	// Various fixups
 	if *uidFlag != "" && *gidFlag == "" {
 		gid, err := passwd.GetGIDForUID(*uidFlag)
 		if err != nil {
@@ -138,7 +149,11 @@ func (h *ihandler) DropPrivileges() error {
 		}
 	}
 
-	if *dropprivsFlag {
+	if (uid <= 0) != (gid <= 0) {
+		return fmt.Errorf("Either both or neither of the UID and GID must be positive")
+	}
+
+	if uid > 0 {
 		chrootErr, err := daemon.DropPrivileges(uid, gid, chrootPath)
 		if err != nil {
 			return fmt.Errorf("Failed to drop privileges: %v", err)
@@ -147,7 +162,7 @@ func (h *ihandler) DropPrivileges() error {
 			return fmt.Errorf("Failed to chroot: %v", chrootErr)
 		}
 	} else if *chrootFlag != "" && *chrootFlag != "/" {
-		return fmt.Errorf("Must set dropprivs to use chroot")
+		return fmt.Errorf("Must use privilege dropping to use chroot; set -uid")
 	}
 
 	if !h.info.AllowRoot && daemon.IsRoot() {
