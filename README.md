@@ -1,7 +1,7 @@
 service: Write daemons in Go
 ============================
 
-[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v1) [![Build Status](https://travis-ci.org/hlandau/service.svg)](https://travis-ci.org/hlandau/service)
+[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v1) [![Build Status](https://travis-ci.org/hlandau/service.svg?branch=master)](https://travis-ci.org/hlandau/service)
 
 This package enables you to easily write services in Go such that the following concerns are taken care of automatically:
 
