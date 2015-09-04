@@ -10,3 +10,6 @@ addons:
   apt:
     packages:
       - libcap-dev
+install:
+  - go get gopkg.in/hlandau/service.v1
+
