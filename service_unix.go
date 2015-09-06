@@ -8,6 +8,7 @@ import (
 	"github.com/ErikDubbelboer/gspt"
 	"gopkg.in/hlandau/service.v1/daemon"
 	"gopkg.in/hlandau/service.v1/daemon/bansuid"
+	"gopkg.in/hlandau/service.v1/daemon/caps"
 	"gopkg.in/hlandau/service.v1/daemon/pidfile"
 	"gopkg.in/hlandau/service.v1/passwd"
 	"gopkg.in/hlandau/service.v1/sdnotify"
@@ -163,6 +164,12 @@ func (h *ihandler) DropPrivileges() error {
 		}
 	} else if *chrootFlag != "" && *chrootFlag != "/" {
 		return fmt.Errorf("Must use privilege dropping to use chroot; set -uid")
+	}
+
+	// If we still have any caps (maybe because we didn't setuid), try and drop them.
+	err := caps.Drop()
+	if err != nil {
+		return fmt.Errorf("cannot drop caps: %v", err)
 	}
 
 	if !h.info.AllowRoot && daemon.IsRoot() {

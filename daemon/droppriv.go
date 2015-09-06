@@ -69,15 +69,6 @@ func dropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error)
 		}
 	}
 
-	if caps.PlatformSupportsCaps {
-		// If we still have any caps (maybe because we didn't setuid), try and drop them.
-		err = caps.Drop()
-		if err != nil {
-			err = fmt.Errorf("cannot drop caps: %v", err)
-			return
-		}
-	}
-
 	return
 }
 
