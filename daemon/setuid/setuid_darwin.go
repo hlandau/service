@@ -18,10 +18,10 @@ func setgroups(gids []int) error {
 
 // darwin doesn't seem to have saved GIDs, so use setregid
 func setresgid(rgid, egid, sgid int) error {
-	return syscall.Setregid(rgid, egid, sgid)
+	return syscall.Setregid(rgid, egid)
 }
 
 // darwin doesn't seem to have saved UIDs, so use setreuid
 func setresuid(ruid, euid, suid int) error {
-	return syscall.Setreuid(ruid, euid, suid)
+	return syscall.Setreuid(ruid, euid)
 }
