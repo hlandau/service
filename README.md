@@ -158,7 +158,7 @@ Platform Support
 ----------------
 
 This package should work on Windows or any UNIX-like platform, but it is currently
-tested only on Windows and Linux.
+tested only on Windows, Linux and Darwin/OS X.
 
 On Linux **you may need to install the libcap development package** (`libcap-dev` on Debian-style distros, `libcap-devel` on RedHat-style distros), as this package uses libcap to make sure all capabilities are dropped on Linux.
 
