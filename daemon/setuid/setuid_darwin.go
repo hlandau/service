@@ -1,4 +1,4 @@
-// +build !linux,!windows,!darwin
+// +build darwin
 
 package setuid
 
@@ -16,10 +16,12 @@ func setgroups(gids []int) error {
 	return syscall.Setgroups(gids)
 }
 
+// darwin doesn't seem to have saved GIDs, so use setregid
 func setresgid(rgid, egid, sgid int) error {
-	return syscall.Setresgid(rgid, egid, sgid)
+	return syscall.Setregid(rgid, egid, sgid)
 }
 
+// darwin doesn't seem to have saved UIDs, so use setreuid
 func setresuid(ruid, euid, suid int) error {
-	return syscall.Setresuid(ruid, euid, suid)
+	return syscall.Setreuid(ruid, euid, suid)
 }

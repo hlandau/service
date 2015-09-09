@@ -1,6 +1,8 @@
 // +build !windows
 
-#define _POSIX_C_SOURCE 1
+// This needs to be >=200112L or _SC_GETPW_R_SIZE_MAX etc. do not
+// manifest on Darwin.
+#define _POSIX_C_SOURCE 200112L
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
