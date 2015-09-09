@@ -13,4 +13,5 @@ addons:
 install:
   - go get gopkg.in/hlandau/service.v1
   - cd $HOME/gopath/src/gopkg.in/hlandau/service.v1
+  - git checkout master
 
