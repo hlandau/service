@@ -152,7 +152,7 @@ Bugs
   - Testing would be nice, but a library of this nature isn't too susceptible
     to unit testing. Something to think about.
 
-  - **Severe**: A bug in Go 1.5 means that privilege dropping does not work correctly, but instead hangs forever ([#12498](https://github.com/golang/go/issues/12498)). A patch is available but is not yet part of any release. As a workaround, use Go 1.4 or do not use privilege dropping (e.g. run as a non-root user and do not specify `-uid`, `-gid` or `-chroot`). If you need to bind to low ports, you can use `setcap` on Linux to grant those privileges.
+  - **Severe**: A bug in Go 1.5 means that privilege dropping does not work correctly, but instead hangs forever ([#12498](https://github.com/golang/go/issues/12498)). A patch is available but is not yet part of any release. As a workaround, use Go 1.4 or do not use privilege dropping (e.g. run as a non-root user and do not specify `-uid`, `-gid` or `-chroot`). If you need to bind to low ports, you can use `setcap` on Linux to grant those privileges. (This bug will be fixed in Go 1.5.2.)
 
 Platform Support
 ----------------
