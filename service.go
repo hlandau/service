@@ -1,11 +1,11 @@
 // Package service wraps all the complexity of writing daemons while enabling
 // seamless integration with OS service management facilities.
-package service // import "gopkg.in/hlandau/service.v1"
+package service // import "gopkg.in/hlandau/service.v2"
 
 import (
 	"expvar"
-	"flag"
 	"fmt"
+	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"net/http"
 	_ "net/http/pprof" // register pprof handler for debug server
 	"os"
@@ -19,11 +19,9 @@ import (
 // Flags
 
 var (
-	fs                   = flag.NewFlagSet("Service Options", flag.ContinueOnError)
-	cpuProfileFlag       = fs.String("cpuprofile", "", "Write CPU profile to file")
-	_cpuProfileFlag      = flag.String("cpuprofile", "", "Write CPU profile to file")
-	debugServerAddrFlag  = fs.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
-	_debugServerAddrFlag = flag.String("debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
+	fg                  = cflag.NewGroup(nil, "service")
+	cpuProfileFlag      = cflag.String(fg, "cpuprofile", "", "Write CPU profile to file")
+	debugServerAddrFlag = cflag.String(fg, "debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
 )
 
 type nullWriter struct{}
@@ -34,11 +32,6 @@ func (nw nullWriter) Write(p []byte) (n int, err error) {
 
 func init() {
 	expvar.NewString("service.startTime").Set(time.Now().String())
-
-	// Suppress usage output. Any errors will be complained about when the user
-	// parses flags anyway.
-	fs.Usage = func() {}
-	fs.SetOutput(nullWriter{})
 }
 
 // This function should typically be called directly from func main(). It takes
@@ -84,10 +77,6 @@ type Info struct {
 	DefaultChroot string // Default path to chroot to. Use this if the service can be chrooted without consequence.
 	NoBanSuid     bool   // Set to true if the ability to execute suid binaries must be retained.
 
-	// Set to true if the service uses the default HTTP serve mux. This disables
-	// the -debugserveraddr option.
-	UsesDefaultHTTP bool
-
 	// Are we being started by systemd with [Service] Type=notify?
 	// If so, we can issue service status notifications to systemd.
 	systemd bool
@@ -115,20 +104,14 @@ func (info *Info) maine() error {
 		info.Description = info.Title
 	}
 
-	if !info.UsesDefaultHTTP {
-		// ...
-	}
-
-	fs.Parse(os.Args[1:]) // ignore errors
-
 	err := info.commonPre()
 	if err != nil {
 		return err
 	}
 
 	// profiling
-	if *cpuProfileFlag != "" {
-		f, err := os.Create(*cpuProfileFlag)
+	if cpuProfileFlag.Value() != "" {
+		f, err := os.Create(cpuProfileFlag.Value())
 		if err != nil {
 			return err
 		}
@@ -143,9 +126,9 @@ func (info *Info) maine() error {
 }
 
 func (info *Info) commonPre() error {
-	if debugServerAddrFlag != nil && *debugServerAddrFlag != "" && !info.UsesDefaultHTTP {
+	if debugServerAddrFlag != nil && debugServerAddrFlag.Value() != "" {
 		go func() {
-			err := http.ListenAndServe(*debugServerAddrFlag, nil)
+			err := http.ListenAndServe(debugServerAddrFlag.Value(), nil)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Couldn't start debug server: %+v\n", err)
 			}

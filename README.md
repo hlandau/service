@@ -1,7 +1,7 @@
 service: Write daemons in Go
 ============================
 
-[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v1) [![Build Status](https://travis-ci.org/hlandau/service.svg?branch=master)](https://travis-ci.org/hlandau/service)
+[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v2?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v2) [![Build Status](https://travis-ci.org/hlandau/service.svg?branch=master)](https://travis-ci.org/hlandau/service)
 
 This package enables you to easily write services in Go such that the following concerns are taken care of automatically:
 
@@ -17,9 +17,12 @@ This package enables you to easily write services in Go such that the following 
 Here's a usage example:
 
 ```go
-import "gopkg.in/hlandau/service.v1"
+import "gopkg.in/hlandau/service.v2"
+import "gopkg.in/hlandau/easyconfig.v1"
 
 func main() {
+  easyconfig.ParseFatal(nil, nil)
+
   service.Main(&service.Info{
       Title:       "Foobar Web Server",
       Name:        "foobar",
@@ -55,31 +58,46 @@ func main() {
 }
 ```
 
-You should import the package as "gopkg.in/hlandau/service.v1". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
+You should import the package as "gopkg.in/hlandau/service.v2". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
 
-Flags
------
+Changes since v1
+----------------
 
-The following flags are automatically registered via the "flag" package:
+v1 used the "flag" package to register service configuration options like UID, GID, etc.
 
-    -chroot=path              (*nix only) chroot to a directory (must set UID, GID) ("/" disables)
-    -daemon=0|1               (*nix only) run as daemon? (doesn't fork)
-                                (remaps stdin, stdout, stderr to /dev/null; calls setsid)
-    -dropprivs=0|1            (*nix only) drop privileges?
-    -fork=0|1                 (*nix only) fork?
-    -uid=username             (*nix only) UID or username to setuid to
-    -gid=groupname            (*nix only) GID or group name to setgid to
-    -pidfile=path             (*nix only) Path of PID file to write and lock (default: no PID file)
-    -cpuprofile=path          Write CPU profile to file
-    -debugserveraddr=ip:port  Bind the net/http DefaultServeMux to the given address
-                              (expvars, pprof handlers will be registered; intended for debug use only;
-                               set UsesDefaultHTTP in the Info type to disable the presence of this flag)
-    -service=start|stop|install|remove  (Windows only) Service control.
+v2 uses the "[configurable](https://github.com/hlandau/configurable)" package
+to register service configuration options. "configurable" is a neutral
+[integration nexus](https://github.com/hlandau/nexuses), so it increases the
+generality of `service`. However, bear in mind that you are responsible for
+ensuring that configuration is loaded before calling service.Main.
+
+Configurables
+-------------
+
+The following configurables are automatically registered under a group configurable named "service":
+
+    chroot          (string) path       (*nix only) chroot to a directory (must set UID, GID) ("/" disables)
+    daemon          (bool)              (*nix only) run as daemon? (doesn't fork)
+                                        (remaps stdin, stdout, stderr to /dev/null; calls setsid)
+    fork            (bool)              (*nix only) fork?
+    uid             (string) username   (*nix only) UID or username to setuid to
+    gid             (string) groupname  (*nix only) GID or group name to setgid to
+    pidfile         (string) path       (*nix only) Path of PID file to write and lock (default: no PID file)
+
+    do              (string) start|stop|install|remove  (Windows only) Service control.
+
+    cpuprofile      (string) path       Write CPU profile to file
+    debugserveraddr (string) ip:port    Bind the net/http DefaultServeMux to the given address
+                                        (expvars, pprof handlers will be registered; intended for debug use only;
+                                        set UsesDefaultHTTP in the Info type to disable the presence of this flag)
+
+If you call `easyconfig.ParseFatal(nil, nil)` as suggested above, these manifest as "flag" flags named -service.X,
+for each name X above. e.g. `-service.chroot=/`
 
 Using as a Windows service
 --------------------------
 
-You can use the `-service=install` and `-service=remove` flags to install and
+You can use the `-service.do=install` and `-service.do=remove` flags to install and
 remove the service as a Windows service. Please note that:
 
   - You will need to run these commands from an elevated command prompt
@@ -142,12 +160,9 @@ Here is an example systemd unit file with privilege dropping and auto-restart:
 Bugs
 ----
 
-  - This library has to call flag.Parse() to figure out what to do before it
-    calls your code. It uses a separate flagset to do this, because it seems
-    impolite to call flag.Parse() twice. This flagset is unaware of any flags
-    used by the application. Thus, if an application flag is passed, a parse
-    error occurs. Because of this, you must pass any flags used by this
-    library before any flags used by your application.
+  - If you don't consume registered configurables, the user cannot configure
+    the options of this package, rendering it somewhat unusable. You must handle
+    registered configurables. The easyconfig example above suffices.
 
   - Testing would be nice, but a library of this nature isn't too susceptible
     to unit testing. Something to think about.

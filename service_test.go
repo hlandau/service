@@ -1,6 +1,6 @@
 package service_test
 
-import "gopkg.in/hlandau/service.v1"
+import "gopkg.in/hlandau/service.v2"
 
 // The following example illustrates the minimal skeleton structure to
 // implement a daemon. This example can run as a service on Windows or a daemon

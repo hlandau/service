@@ -3,15 +3,15 @@
 package service
 
 import (
-	"flag"
 	"fmt"
 	"github.com/ErikDubbelboer/gspt"
-	"gopkg.in/hlandau/service.v1/daemon"
-	"gopkg.in/hlandau/service.v1/daemon/bansuid"
-	"gopkg.in/hlandau/service.v1/daemon/caps"
-	"gopkg.in/hlandau/service.v1/daemon/pidfile"
-	"gopkg.in/hlandau/service.v1/passwd"
-	"gopkg.in/hlandau/service.v1/sdnotify"
+	"gopkg.in/hlandau/easyconfig.v1/cflag"
+	"gopkg.in/hlandau/service.v2/daemon"
+	"gopkg.in/hlandau/service.v2/daemon/bansuid"
+	"gopkg.in/hlandau/service.v2/daemon/caps"
+	"gopkg.in/hlandau/service.v2/daemon/pidfile"
+	"gopkg.in/hlandau/service.v2/passwd"
+	"gopkg.in/hlandau/service.v2/sdnotify"
 	"os"
 	"strconv"
 )
@@ -25,20 +25,12 @@ import (
 var EmptyChrootPath = daemon.EmptyChrootPath
 
 var (
-	uidFlag        = fs.String("uid", "", "UID to run as (default: don't drop privileges)")
-	_uidFlag       = flag.String("uid", "", "UID to run as (default: don't drop privileges)")
-	gidFlag        = fs.String("gid", "", "GID to run as (default: don't drop privileges)")
-	_gidFlag       = flag.String("gid", "", "GID to run as (default: don't drop privileges)")
-	daemonizeFlag  = fs.Bool("daemon", false, "Run as daemon? (doesn't fork)")
-	_daemonizeFlag = flag.Bool("daemon", false, "Run as daemon? (doesn't fork)")
-	chrootFlag     = fs.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
-	_chrootFlag    = flag.String("chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
-	pidfileFlag    = fs.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
-	_pidfileFlag   = flag.String("pidfile", "", "Write PID to file with given filename and hold a write lock")
-	//dropprivsFlag  = fs.Bool("dropprivs", true, "Drop privileges?")
-	//_dropprivsFlag = flag.Bool("dropprivs", true, "Drop privileges?")
-	forkFlag  = fs.Bool("fork", false, "Fork? (implies -daemon)")
-	_forkFlag = flag.Bool("fork", false, "Fork? (implies -daemon)")
+	uidFlag       = cflag.String(fg, "uid", "", "UID to run as (default: don't drop privileges)")
+	gidFlag       = cflag.String(fg, "gid", "", "GID to run as (default: don't drop privileges)")
+	daemonizeFlag = cflag.Bool(fg, "daemon", false, "Run as daemon? (doesn't fork)")
+	chrootFlag    = cflag.String(fg, "chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
+	pidfileFlag   = cflag.String(fg, "pidfile", "", "Write PID to file with given filename and hold a write lock")
+	forkFlag      = cflag.Bool(fg, "fork", false, "Fork? (implies -daemon)")
 )
 
 func systemdUpdateStatus(status string) error {
@@ -51,7 +43,7 @@ func setproctitle(status string) error {
 }
 
 func (info *Info) serviceMain() error {
-	if *forkFlag {
+	if forkFlag.Value() {
 		isParent, err := daemon.Fork()
 		if err != nil {
 			return err
@@ -61,7 +53,7 @@ func (info *Info) serviceMain() error {
 			os.Exit(0)
 		}
 
-		*daemonizeFlag = true
+		daemonizeFlag.SetValue(true)
 	}
 
 	err := daemon.Init()
@@ -74,15 +66,15 @@ func (info *Info) serviceMain() error {
 		info.systemd = true
 	}
 
-	if *daemonizeFlag || info.systemd {
+	if daemonizeFlag.Value() || info.systemd {
 		err := daemon.Daemonize()
 		if err != nil {
 			return err
 		}
 	}
 
-	if *pidfileFlag != "" {
-		info.pidFileName = *pidfileFlag
+	if pidfileFlag.Value() != "" {
+		info.pidFileName = pidfileFlag.Value()
 
 		err = info.openPIDFile()
 		if err != nil {
@@ -118,33 +110,33 @@ func (h *ihandler) DropPrivileges() error {
 	}
 
 	// Various fixups
-	if *uidFlag != "" && *gidFlag == "" {
-		gid, err := passwd.GetGIDForUID(*uidFlag)
+	if uidFlag.Value() != "" && gidFlag.Value() == "" {
+		gid, err := passwd.GetGIDForUID(uidFlag.Value())
 		if err != nil {
 			return err
 		}
-		*gidFlag = strconv.FormatInt(int64(gid), 10)
+		gidFlag.SetValue(strconv.FormatInt(int64(gid), 10))
 	}
 
 	if h.info.DefaultChroot == "" {
 		h.info.DefaultChroot = "/"
 	}
 
-	chrootPath := *chrootFlag
+	chrootPath := chrootFlag.Value()
 	if chrootPath == "" {
 		chrootPath = h.info.DefaultChroot
 	}
 
 	uid := -1
 	gid := -1
-	if *uidFlag != "" {
+	if uidFlag.Value() != "" {
 		var err error
-		uid, err = passwd.ParseUID(*uidFlag)
+		uid, err = passwd.ParseUID(uidFlag.Value())
 		if err != nil {
 			return err
 		}
 
-		gid, err = passwd.ParseGID(*gidFlag)
+		gid, err = passwd.ParseGID(gidFlag.Value())
 		if err != nil {
 			return err
 		}
@@ -159,10 +151,10 @@ func (h *ihandler) DropPrivileges() error {
 		if err != nil {
 			return fmt.Errorf("Failed to drop privileges: %v", err)
 		}
-		if chrootErr != nil && *chrootFlag != "" && *chrootFlag != "/" {
+		if chrootErr != nil && chrootFlag.Value() != "" && chrootFlag.Value() != "/" {
 			return fmt.Errorf("Failed to chroot: %v", chrootErr)
 		}
-	} else if *chrootFlag != "" && *chrootFlag != "/" {
+	} else if chrootFlag.Value() != "" && chrootFlag.Value() != "/" {
 		return fmt.Errorf("Must use privilege dropping to use chroot; set -uid")
 	}
 

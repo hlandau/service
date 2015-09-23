@@ -5,7 +5,7 @@
 package daemon
 
 import (
-	"gopkg.in/hlandau/service.v1/exepath"
+	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"os"
 	"syscall"
 )

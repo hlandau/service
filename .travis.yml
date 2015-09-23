@@ -12,6 +12,6 @@ addons:
       - libcap-dev
 install:
   - mkdir -p $HOME/gopath/src/gopkg.in/hlandau
-  - mv $HOME/gopath/src/github.com/hlandau/service $HOME/gopath/src/gopkg.in/hlandau/service.v1
-  - cd $HOME/gopath/src/gopkg.in/hlandau/service.v1
-  - go get gopkg.in/hlandau/service.v1
+  - mv $HOME/gopath/src/github.com/hlandau/service $HOME/gopath/src/gopkg.in/hlandau/service.v2
+  - cd $HOME/gopath/src/gopkg.in/hlandau/service.v2
+  - go get gopkg.in/hlandau/service.v2

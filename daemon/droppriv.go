@@ -5,9 +5,9 @@ package daemon
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/hlandau/service.v1/daemon/caps"
-	"gopkg.in/hlandau/service.v1/daemon/setuid"
-	"gopkg.in/hlandau/service.v1/passwd"
+	"gopkg.in/hlandau/service.v2/daemon/caps"
+	"gopkg.in/hlandau/service.v2/daemon/setuid"
+	"gopkg.in/hlandau/service.v2/passwd"
 	"net"
 	"syscall"
 )
