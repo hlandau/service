@@ -267,7 +267,7 @@ func (info *Info) runAsService() error {
 }
 
 func (info *Info) serviceMain() error {
-	switch *serviceFlag {
+	switch serviceFlag.Value() {
 	case "install":
 		return info.installService()
 	case "remove":
