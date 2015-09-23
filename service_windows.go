@@ -1,10 +1,10 @@
 package service
 
 import (
-	"flag"
 	"fmt"
 	"github.com/btcsuite/winsvc/mgr"
 	"github.com/btcsuite/winsvc/svc"
+	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"os"
 	"time"
@@ -15,7 +15,7 @@ import (
 var EmptyChrootPath = ""
 
 var (
-	serviceFlag = fs.String(fg, "do", "", "service command (one of: start, stop, install, remove)")
+	serviceFlag = cflag.String(fg, "do", "", "service command (one of: start, stop, install, remove)")
 )
 
 var errNotSupported = fmt.Errorf("not supported")
