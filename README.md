@@ -67,7 +67,7 @@ v1 used the "flag" package to register service configuration options like UID, G
 
 v2 uses the "[configurable](https://github.com/hlandau/configurable)" package
 to register service configuration options. "configurable" is a neutral
-[integration nexus](https://github.com/hlandau/nexuses), so it increases the
+[integration nexus](http://www.devever.net/~hl/nexuses), so it increases the
 generality of `service`. However, bear in mind that you are responsible for
 ensuring that configuration is loaded before calling service.Main.
 
