@@ -4,7 +4,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/ErikDubbelboer/gspt"
+	"github.com/hlandauf/gspt"
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"gopkg.in/hlandau/service.v2/daemon"
 	"gopkg.in/hlandau/service.v2/daemon/bansuid"
