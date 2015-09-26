@@ -1,4 +1,4 @@
-// +build !linux,!windows,!darwin
+// +build !linux,!windows,!darwin,!freebsd
 
 package setuid
 
