@@ -172,10 +172,15 @@ Bugs
 Platform Support
 ----------------
 
-This package should work on Windows or any UNIX-like platform, but it is currently
-tested only on Windows, Linux and Darwin/OS X.
+The package should work on Windows or any UNIX-like platform, but has been
+tested only on the following platforms:
 
-On Linux **you may need to install the libcap development package** (`libcap-dev` on Debian-style distros, `libcap-devel` on RedHat-style distros), as this package uses libcap to make sure all capabilities are dropped on Linux.
+  - Linux
+  - FreeBSD
+  - Darwin/OS X
+  - Windows
+
+On Linux **you may need to install the libcap development package** (`libcap-dev` on Debian-style distros, `libcap-devel` on Red Hat-style distros), as this package uses libcap to make sure all capabilities are dropped on Linux.
 
 Licence
 -------
