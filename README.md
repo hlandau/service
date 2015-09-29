@@ -14,6 +14,9 @@ This package enables you to easily write services in Go such that the following 
   - Operation as a Windows service
   - Orderly shutdown
 
+Standard Interface
+------------------
+
 Here's a usage example:
 
 ```go
@@ -59,6 +62,63 @@ func main() {
 ```
 
 You should import the package as "gopkg.in/hlandau/service.v2". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
+
+Simplified Interface
+--------------------
+
+If you implement the following interface, you can use the simplified interface. This example also demonstrates how to use easyconfig to handle your configuration.
+
+```go
+  func() (Runnable, error)
+
+  type Runnable interface {
+    Start() error
+    Stop() error
+  }
+```
+
+Usage example:
+
+```go
+import "gopkg.in/hlandau/service.v2"
+import "gopkg.in/hlandau/easyconfig.v1"
+
+type Config struct{}
+
+// Server which doesn't do anything
+type Server struct{}
+
+func New(cfg Config) (*Server, error) {
+  // Instantiate the service and bind to ports here
+  return &Server{}, nil
+}
+
+func (*Server) Start() error {
+  // Start handling of requests here (must return)
+  return nil
+}
+
+func (*Server) Stop() error {
+  // Stop the service here
+  return nil
+}
+
+func main() {
+  cfg := Config{}
+
+  easyconfig.Configurator{
+    ProgramName: "foobar",
+  }.ParseFatal(&cfg)
+
+  service.Main(&service.Info{
+    Name:        "foobar",
+
+    NewFunc: func() (service.Runnable, error) {
+      return New(cfg)
+    },
+  })
+}
+```
 
 Changes since v1
 ----------------

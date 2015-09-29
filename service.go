@@ -59,6 +59,25 @@ type Manager interface {
 	SetStatus(status string)
 }
 
+// Used only by the NewFunc interface.
+type Runnable interface {
+	// Start the runnable. Any initialization requiring root privileges must
+	// already have been obtained as this will be called after dropping
+	// privileges. Must return.
+	Start() error
+
+	// Stop the runnable. Must return.
+	Stop() error
+}
+
+// An upgrade interface for Runnable, implementation of which is optional.
+type StatusSource interface {
+	// Return a channel on which status messages will be sent. If a Runnable
+	// implements this, it is guaranteed that the channel will be consumed until
+	// Stop is called.
+	StatusChan() <-chan string
+}
+
 // An instantiable service.
 type Info struct {
 	Name string // Required. Codename for the service, e.g. "foobar"
@@ -69,6 +88,18 @@ type Info struct {
 	//
 	// Should call SetStatus() periodically with a status string.
 	RunFunc func(smgr Manager) error
+
+	// Optional. An alternative to RunFunc. If this is provided, RunFunc must not
+	// be specified, and this package will provide its own implementation of
+	// RunFunc.
+	//
+	// The NewFunc will be called to instantiate the runnable service.
+	// Privileges will then be dropped and Start will be called. Start must
+	// return. When the service is to be stopped, Stop will be called. Stop must
+	// return.
+	//
+	// To implement status notification, implement also the StatusSource interface.
+	NewFunc func() (Runnable, error)
 
 	Title       string // Optional. Friendly name for the service, e.g. "Foobar Web Server"
 	Description string // Optional. Single line description for the service
@@ -109,6 +140,11 @@ func (info *Info) maine() error {
 		return err
 	}
 
+	err = info.setRunFunc()
+	if err != nil {
+		return err
+	}
+
 	// profiling
 	if cpuProfileFlag.Value() != "" {
 		f, err := os.Create(cpuProfileFlag.Value())
@@ -134,6 +170,67 @@ func (info *Info) commonPre() error {
 			}
 		}()
 	}
+	return nil
+}
+
+func (info *Info) setRunFunc() error {
+	if info.RunFunc != nil {
+		return nil
+	}
+
+	if info.NewFunc == nil {
+		panic("either RunFunc or NewFunc must be specified")
+	}
+
+	info.RunFunc = func(smgr Manager) error {
+		// instantiate runnable
+		r, err := info.NewFunc()
+		if err != nil {
+			return err
+		}
+
+		// setup status channel
+		getStatusChan := func() <-chan string {
+			return nil
+		}
+		if ss, ok := r.(StatusSource); ok {
+			getStatusChan = func() <-chan string {
+				return ss.StatusChan()
+			}
+		}
+
+		// drop privileges
+		err = smgr.DropPrivileges()
+		if err != nil {
+			return err
+		}
+
+		// start
+		err = r.Start()
+		if err != nil {
+			return err
+		}
+
+		//
+		smgr.SetStarted()
+		smgr.SetStatus(info.Name + ": running ok")
+
+		// wait for status messages or stop requests
+	loop:
+		for {
+			select {
+			case statusMsg := <-getStatusChan():
+				smgr.SetStatus(info.Name + ": " + statusMsg)
+
+			case <-smgr.StopChan():
+				break loop
+			}
+		}
+
+		// stop
+		return r.Stop()
+	}
+
 	return nil
 }
 
