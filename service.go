@@ -6,6 +6,7 @@ import (
 	"expvar"
 	"fmt"
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
+	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"net/http"
 	_ "net/http/pprof" // register pprof handler for debug server
 	"os"
@@ -80,11 +81,16 @@ type StatusSource interface {
 
 // An instantiable service.
 type Info struct {
-	Name string // Required. Codename for the service, e.g. "foobar"
+	// Recommended. Codename for the service, e.g. "foobar"
+	//
+	// If this is not set, exepath.ProgramName is used, which by default is the
+	// program's binary basename (e.g. "FooBar.exe" would become "foobar").
+	Name string
 
-	// Required. Starts the service. Must not return until the service has
-	// stopped. Must call smgr.SetStarted() to indicate when it has finished
-	// starting and use smgr.StopChan() to determine when to stop.
+	// Required unless NewFunc is specified instead. Starts the service. Must not
+	// return until the service has stopped. Must call smgr.SetStarted() to
+	// indicate when it has finished starting and use smgr.StopChan() to
+	// determine when to stop.
 	//
 	// Should call SetStatus() periodically with a status string.
 	RunFunc func(smgr Manager) error
@@ -125,6 +131,13 @@ func (info *Info) main() {
 }
 
 func (info *Info) maine() error {
+	if info.Name == "" {
+		info.Name = exepath.ProgramName
+	} else if exepath.ProgramNameSetter == "default" {
+		exepath.ProgramName = info.Name
+		exepath.ProgramNameSetter = "service"
+	}
+
 	if info.Name == "" {
 		panic("service name must be specified")
 	}
