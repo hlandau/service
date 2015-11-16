@@ -6,9 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/hlandau/service.v2/daemon/caps"
+	"gopkg.in/hlandau/service.v2/daemon/chroot"
 	"gopkg.in/hlandau/service.v2/daemon/setuid"
 	"gopkg.in/hlandau/service.v2/passwd"
 	"net"
+	"runtime"
+	"sync"
 	"syscall"
 )
 
@@ -72,9 +75,18 @@ func dropPrivileges(UID, GID int, chrootDir string) (chrootErr error, err error)
 	return
 }
 
+var warnOnce sync.Once
+
 func tryDropPrivileges(UID, GID int, gids []int) error {
 	if UID <= 0 || GID <= 0 {
 		return errors.New("invalid UID/GID specified so cannot setuid/setgid")
+	}
+
+	if runtime.GOOS == "linux" {
+		ver := runtime.Version()
+		if ver == "go1.5" || ver == "go1.5.1" {
+			return errors.New("It is not possible to drop privileges on Linux using Go 1.5 or 1.5.1 (Go bug #12498: <https://github.com/golang/go/issues/12498>); either use Go1.4, 1.5.2 or a development branch of Go, or do not use privilege dropping by running services only as non-root users with no capabilities set")
+		}
 	}
 
 	err := setuid.Setgroups(gids)
@@ -106,7 +118,7 @@ func tryChroot(path string) error {
 
 	ensureResolverConfigIsLoaded()
 
-	err := syscall.Chroot(path)
+	err := chroot.Chroot(path)
 	if err != nil {
 		return err
 	}
