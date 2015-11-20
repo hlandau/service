@@ -210,7 +210,7 @@ Here is an example systemd unit file with privilege dropping and auto-restart:
 
     [Service]
     Type=notify
-    ExecStart=/path/to/foobar/foobard -uid=foobar -gid=foobar -daemon
+    ExecStart=/path/to/foobar/foobard -service.uid=foobar -service.gid=foobar -service.daemon=1
     Restart=always
     RestartSec=30
 
