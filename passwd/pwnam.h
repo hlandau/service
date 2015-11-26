@@ -1,4 +1,4 @@
-// +build !windows
+#pragma once
 
 // This needs to be >=200112L or _SC_GETPW_R_SIZE_MAX etc. do not
 // manifest on Darwin.
@@ -12,7 +12,7 @@
 
 void de_gid_cb(void *ptr, gid_t gid);
 
-int de_username_to_uid(const char *name, uid_t *uid) {
+static int de_username_to_uid(const char *name, uid_t *uid) {
   struct passwd p, *pp = NULL;
   size_t buflen = 1024;
   char *buf = NULL;
@@ -42,7 +42,7 @@ again:
   return 0;
 }
 
-int de_groupname_to_gid(const char *name, gid_t *gid) {
+static int de_groupname_to_gid(const char *name, gid_t *gid) {
   struct group p, *pp = NULL;
   size_t buflen = 1024;
   char *buf = NULL;
@@ -72,7 +72,7 @@ again:
   return 0;
 }
 
-int de_get_extra_gids(gid_t gid, void *p) {
+static int de_get_extra_gids(gid_t gid, void *p) {
   struct group g, *pg = NULL;
   size_t buflen = 1024;
   char *buf = NULL;
@@ -112,7 +112,7 @@ again:
   return 0;
 }
 
-int de_gid_for_uid(uid_t uid, gid_t *gid) {
+static int de_gid_for_uid(uid_t uid, gid_t *gid) {
   struct passwd p, *pp = NULL;
   size_t buflen = 1024;
   char *buf = NULL;

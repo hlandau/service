@@ -1,4 +1,4 @@
-// +build !linux
+// +build !linux linux,!cgo
 
 package caps
 

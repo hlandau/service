@@ -12,10 +12,6 @@ func setgid(gid int) error {
 	return syscall.Setgid(gid)
 }
 
-func setgroups(gids []int) error {
-	return syscall.Setgroups(gids)
-}
-
 // darwin doesn't seem to have saved GIDs, so use setregid
 func setresgid(rgid, egid, sgid int) error {
 	return syscall.Setregid(rgid, egid)

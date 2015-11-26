@@ -2,6 +2,8 @@
 
 package setuid
 
+import "syscall"
+
 // Setuid calls the *NIX setuid() function.
 func Setuid(uid int) error {
 	return setuid(uid)
@@ -14,7 +16,7 @@ func Setgid(gid int) error {
 
 // Setgroups calls the *NIX setgroups() function.
 func Setgroups(gids []int) error {
-	return setgroups(gids)
+	return syscall.Setgroups(gids)
 }
 
 // Setresgid calls the *NIX setresgid() function.

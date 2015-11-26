@@ -242,6 +242,16 @@ tested only on the following platforms:
 
 On Linux **you may need to install the libcap development package** (`libcap-dev` on Debian-style distros, `libcap-devel` on Red Hat-style distros), as this package uses libcap to make sure all capabilities are dropped on Linux.
 
+Reduced Functionality Mode
+--------------------------
+
+When built without cgo, the following limitations are imposed:
+
+  - Privilege dropping is not supported at all on Linux.
+  - UIDs and GIDs must be specified numerically, not as names.
+  - No supplementary GIDs are configured when dropping privileges (the empty set is configured).
+  - setproctitle is not supported; status setting is a no-op.
+
 Licence
 -------
 
