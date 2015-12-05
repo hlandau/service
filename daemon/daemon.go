@@ -5,6 +5,7 @@
 package daemon
 
 import (
+	"gopkg.in/hlandau/service.v2/daemon/dupfd"
 	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"os"
 	"syscall"
@@ -81,17 +82,17 @@ func Daemonize() error {
 	// Since dup2 closes fds which are already open we needn't close the above fds.
 	// This lets us avoid race conditions.
 	null_fd := int(null_f.Fd())
-	err = syscall.Dup2(null_fd, stdin_fd)
+	err = dupfd.Dup2(null_fd, stdin_fd)
 	if err != nil {
 		return err
 	}
 
-	err = syscall.Dup2(null_fd, stdout_fd)
+	err = dupfd.Dup2(null_fd, stdout_fd)
 	if err != nil {
 		return err
 	}
 
-	err = syscall.Dup2(null_fd, stderr_fd)
+	err = dupfd.Dup2(null_fd, stderr_fd)
 	if err != nil {
 		return err
 	}

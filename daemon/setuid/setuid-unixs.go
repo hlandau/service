@@ -1,4 +1,4 @@
-// +build !linux,!windows,!darwin,!freebsd
+// +build !linux,!windows,!darwin,!freebsd,!openbsd,!netbsd,!solaris,!plan9,!dragonfly
 
 package setuid
 
