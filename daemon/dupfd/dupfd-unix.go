@@ -1,4 +1,4 @@
-// +build !windows,!solaris,!plan9
+// +build !windows,!solaris,!plan9,!linux
 
 package dupfd
 
