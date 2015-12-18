@@ -306,10 +306,12 @@ func (h *ihandler) updateStatus() {
 }
 
 func (info *Info) runInteractively() error {
-	smgr := ihandler{info: info}
-	smgr.stopChan = make(chan struct{})
-	smgr.statusNotifyChan = make(chan struct{}, 1)
-	smgr.startedChan = make(chan struct{}, 1)
+	smgr := ihandler{
+		info:             info,
+		stopChan:         make(chan struct{}),
+		statusNotifyChan: make(chan struct{}, 1),
+		startedChan:      make(chan struct{}, 1),
+	}
 
 	doneChan := make(chan error)
 	go func() {

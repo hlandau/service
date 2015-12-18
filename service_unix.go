@@ -11,7 +11,7 @@ import (
 	"gopkg.in/hlandau/service.v2/daemon/caps"
 	"gopkg.in/hlandau/service.v2/daemon/pidfile"
 	"gopkg.in/hlandau/service.v2/passwd"
-	"gopkg.in/hlandau/service.v2/sdnotify"
+	"gopkg.in/hlandau/svcutils.v1/systemd"
 	"os"
 	"strconv"
 )
@@ -34,7 +34,7 @@ var (
 )
 
 func systemdUpdateStatus(status string) error {
-	return sdnotify.Send(status)
+	return systemd.NotifySend(status)
 }
 
 func setproctitle(status string) error {
@@ -88,11 +88,11 @@ func (info *Info) serviceMain() error {
 }
 
 func (info *Info) openPIDFile() error {
-	return pidfile.OpenPIDFile(info.pidFileName)
+	return pidfile.Open(info.pidFileName)
 }
 
 func (info *Info) closePIDFile() {
-	pidfile.ClosePIDFile()
+	pidfile.Close()
 }
 
 func (h *ihandler) DropPrivileges() error {

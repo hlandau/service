@@ -17,12 +17,12 @@ var (
 // and the file is locked. The file is kept open until the process terminates.
 // Only one PID file must be called at a time, so this function must not be
 // called again unless ClosePIDFile() has been called.
-func OpenPIDFile(filename string) error {
+func Open(filename string) error {
 	if pidFile != nil {
 		return fmt.Errorf("PID file already opened")
 	}
 
-	f, err := openPIDFile(filename)
+	f, err := open(filename)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func OpenPIDFile(filename string) error {
 }
 
 // Closes any previously opened PID file.
-func ClosePIDFile() {
+func Close() {
 	if pidFile != nil {
 		// try and remove file, don't care if it fails
 		os.Remove(pidFileName)
@@ -52,7 +52,7 @@ func ClosePIDFile() {
 	}
 }
 
-func openPIDFile(filename string) (*os.File, error) {
+func open(filename string) (*os.File, error) {
 	var f *os.File
 	var err error
 

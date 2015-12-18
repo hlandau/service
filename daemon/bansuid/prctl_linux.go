@@ -26,20 +26,20 @@ func banSuid() error {
 	return nil
 }
 
-func setSecurebits() error {
-	err := prctl(pPR_SET_SECUREBITS,
-		sSECBIT_NOROOT|sSECBIT_NOROOT_LOCKED|sSECBIT_KEEP_CAPS_LOCKED, 0, 0, 0)
+func setNoNewPrivs() error {
+	err := prctl(pPR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)
 	if err != nil {
-		return fmt.Errorf("cannot set SECUREBITS: %v", err)
+		return fmt.Errorf("cannot set NO_NEW_PRIVS: %v", err)
 	}
 
 	return nil
 }
 
-func setNoNewPrivs() error {
-	err := prctl(pPR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)
+func setSecurebits() error {
+	err := prctl(pPR_SET_SECUREBITS,
+		sSECBIT_NOROOT|sSECBIT_NOROOT_LOCKED|sSECBIT_KEEP_CAPS_LOCKED, 0, 0, 0)
 	if err != nil {
-		return fmt.Errorf("cannot set NO_NEW_PRIVS: %v", err)
+		return fmt.Errorf("cannot set SECUREBITS: %v", err)
 	}
 
 	return nil
