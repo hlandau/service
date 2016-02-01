@@ -28,6 +28,7 @@ var (
 	uidFlag       = cflag.String(fg, "uid", "", "UID to run as (default: don't drop privileges)")
 	gidFlag       = cflag.String(fg, "gid", "", "GID to run as (default: don't drop privileges)")
 	daemonizeFlag = cflag.Bool(fg, "daemon", false, "Run as daemon? (doesn't fork)")
+	stderrFlag    = cflag.Bool(fg, "stderr", false, "Keep stderr open when daemonizing")
 	chrootFlag    = cflag.String(fg, "chroot", "", "Chroot to a directory (must set UID, GID) (\"/\" disables)")
 	pidfileFlag   = cflag.String(fg, "pidfile", "", "Write PID to file with given filename and hold a write lock")
 	forkFlag      = cflag.Bool(fg, "fork", false, "Fork? (implies -daemon)")
@@ -66,8 +67,19 @@ func (info *Info) serviceMain() error {
 		info.systemd = true
 	}
 
-	if daemonizeFlag.Value() || info.systemd {
-		err := daemon.Daemonize()
+	// default:                   daemon=no,  stderr=yes
+	// --daemon:                  daemon=yes, stderr=no
+	// systemd/--daemon --stderr: daemon=yes, stderr=yes
+	// systemd --daemon:          daemon=yes, stderr=no
+	daemonize := daemonizeFlag.Value()
+	keepStderr := stderrFlag.Value()
+	if !daemonize && info.systemd {
+		daemonize = true
+		keepStderr = true
+	}
+
+	if daemonize {
+		err := daemon.Daemonize(keepStderr)
 		if err != nil {
 			return err
 		}

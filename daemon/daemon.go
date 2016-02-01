@@ -58,16 +58,25 @@ func Fork() (isParent bool, err error) {
 	return true, nil
 }
 
+var haveStderr = true
+
+// Returns true unless stderr has been closed (remapped to /dev/null) as part
+// of daemonization. Can be used to determine whether logging to stderr is
+// useful.
+func HaveStderr() bool {
+	return haveStderr
+}
+
 // Daemonizes but doesn't fork.
 //
-// The stdin, stdout and stderr fds are remapped to /dev/null.
-// setsid is called.
+// The stdin, stdout and, unless keepStderr is specified, stderr fds are
+// remapped to /dev/null. setsid is called.
 //
 // The process changes its current directory to /.
 //
 // If you intend to call DropPrivileges, call it after calling this function,
 // as /dev/null will no longer be available after privileges are dropped.
-func Daemonize() error {
+func Daemonize(keepStderr bool) error {
 	null_f, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
 	if err != nil {
 		return err
@@ -92,9 +101,13 @@ func Daemonize() error {
 		return err
 	}
 
-	err = dupfd.Dup2(null_fd, stderr_fd)
-	if err != nil {
-		return err
+	if !keepStderr {
+		err = dupfd.Dup2(null_fd, stderr_fd)
+		if err != nil {
+			return err
+		}
+
+		haveStderr = false
 	}
 
 	// This may fail if we're not root
