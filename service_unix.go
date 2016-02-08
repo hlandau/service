@@ -8,7 +8,7 @@ import (
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"gopkg.in/hlandau/service.v2/daemon"
 	"gopkg.in/hlandau/service.v2/daemon/bansuid"
-	"gopkg.in/hlandau/service.v2/daemon/caps"
+	"gopkg.in/hlandau/svcutils.v1/caps"
 	"gopkg.in/hlandau/svcutils.v1/passwd"
 	"gopkg.in/hlandau/svcutils.v1/pidfile"
 	"gopkg.in/hlandau/svcutils.v1/systemd"

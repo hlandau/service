@@ -5,7 +5,7 @@ package daemon
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/hlandau/service.v2/daemon/caps"
+	"gopkg.in/hlandau/svcutils.v1/caps"
 	"gopkg.in/hlandau/svcutils.v1/chroot"
 	"gopkg.in/hlandau/svcutils.v1/passwd"
 	"gopkg.in/hlandau/svcutils.v1/setuid"

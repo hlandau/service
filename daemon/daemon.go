@@ -5,7 +5,7 @@
 package daemon
 
 import (
-	"gopkg.in/hlandau/service.v2/daemon/dupfd"
+	"gopkg.in/hlandau/svcutils.v1/dupfd"
 	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"os"
 	"syscall"
