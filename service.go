@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"gopkg.in/hlandau/svcutils.v1/exepath"
+	"io"
 	"net/http"
 	_ "net/http/pprof" // register pprof handler for debug server
 	"os"
@@ -120,6 +121,7 @@ type Info struct {
 
 	// Path to created PID file.
 	pidFileName string
+	pidFile     io.Closer
 }
 
 func (info *Info) main() {

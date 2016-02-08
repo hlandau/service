@@ -9,8 +9,8 @@ import (
 	"gopkg.in/hlandau/service.v2/daemon"
 	"gopkg.in/hlandau/service.v2/daemon/bansuid"
 	"gopkg.in/hlandau/service.v2/daemon/caps"
-	"gopkg.in/hlandau/service.v2/daemon/pidfile"
-	"gopkg.in/hlandau/service.v2/passwd"
+	"gopkg.in/hlandau/svcutils.v1/passwd"
+	"gopkg.in/hlandau/svcutils.v1/pidfile"
 	"gopkg.in/hlandau/svcutils.v1/systemd"
 	"os"
 	"strconv"
@@ -100,11 +100,15 @@ func (info *Info) serviceMain() error {
 }
 
 func (info *Info) openPIDFile() error {
-	return pidfile.Open(info.pidFileName)
+	f, err := pidfile.Open(info.pidFileName)
+	info.pidFile = f
+	return err
 }
 
 func (info *Info) closePIDFile() {
-	pidfile.Close()
+	if info.pidFile != nil {
+		info.pidFile.Close()
+	}
 }
 
 func (h *ihandler) DropPrivileges() error {
