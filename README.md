@@ -227,7 +227,7 @@ Bugs
   - Testing would be nice, but a library of this nature isn't too susceptible
     to unit testing. Something to think about.
 
-  - **Severe**: A bug in Go 1.5 means that privilege dropping does not work correctly, but instead hangs forever ([#12498](https://github.com/golang/go/issues/12498)). A patch is available but is not yet part of any release. As a workaround, use Go 1.4 or do not use privilege dropping (e.g. run as a non-root user and do not specify `-uid`, `-gid` or `-chroot`). If you need to bind to low ports, you can use `setcap` on Linux to grant those privileges. (This bug will be fixed in Go 1.5.2.)
+  - **Severe**: A bug in Go 1.5 means that privilege dropping does not work correctly, but instead hangs forever ([#12498](https://github.com/golang/go/issues/12498)). A patch is available but is not yet part of any release. As a workaround, use Go 1.4 or do not use privilege dropping (e.g. run as a non-root user and do not specify `-uid`, `-gid` or `-chroot`). If you need to bind to low ports, you can use `setcap` on Linux to grant those privileges. (This bug is fixed in Go 1.5.2 and later.)
 
 Platform Support
 ----------------
@@ -251,6 +251,18 @@ When built without cgo, the following limitations are imposed:
   - UIDs and GIDs must be specified numerically, not as names.
   - No supplementary GIDs are configured when dropping privileges (the empty set is configured).
   - setproctitle is not supported; status setting is a no-op.
+
+Utility Library
+---------------
+
+This package provides a simplified interface built on some functionality
+exposed in [hlandau/svcutils](https://github.com/hlandau/svcutils). People who
+want something less “magic” may find functions there useful.
+
+Some functions in that repository may still be useful to people using this
+package. For example, the chroot package allows you to (try to) relativize a
+path to a chroot, allowing you to address files by their absolute path after
+chrooting.
 
 Licence
 -------
