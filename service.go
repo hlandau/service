@@ -6,6 +6,7 @@ import (
 	"expvar"
 	"fmt"
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
+	"gopkg.in/hlandau/service.v2/gsptcall"
 	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"io"
 	"net/http"
@@ -302,8 +303,7 @@ func (h *ihandler) updateStatus() {
 	}
 
 	if h.status != "" {
-		setproctitle(h.status)
-		// ignore error
+		gsptcall.SetProcTitle(h.status)
 	}
 }
 

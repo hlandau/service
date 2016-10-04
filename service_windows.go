@@ -24,10 +24,6 @@ func systemdUpdateStatus(status string) error {
 	return errNotSupported
 }
 
-func setproctitle(status string) error {
-	return errNotSupported
-}
-
 // handler is used when running as a service.
 // Otherwise we use the generic ihandler.
 type handler struct {

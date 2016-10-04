@@ -4,7 +4,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/hlandauf/gspt"
 	"gopkg.in/hlandau/easyconfig.v1/cflag"
 	"gopkg.in/hlandau/service.v2/daemon"
 	"gopkg.in/hlandau/service.v2/daemon/bansuid"
@@ -36,11 +35,6 @@ var (
 
 func systemdUpdateStatus(status string) error {
 	return systemd.NotifySend(status)
-}
-
-func setproctitle(status string) error {
-	gspt.SetProcTitle(status)
-	return nil
 }
 
 func (info *Info) serviceMain() error {
