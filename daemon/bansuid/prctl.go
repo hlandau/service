@@ -3,7 +3,7 @@ package bansuid
 
 import "errors"
 
-// On Linux, uses prctl() SECUREBITS and NO_NEW_PRIVS to prevent the process or its descendants
+// BanSuid: On Linux, uses prctl() SECUREBITS and NO_NEW_PRIVS to prevent the process or its descendants
 // from ever obtaining privileges by execing a suid/sgid/cap xattr binary. Returns ErrNotSupported
 // if platform is not supported. May return other errors.
 func BanSuid() error {

@@ -37,7 +37,7 @@ func init() {
 	expvar.NewString("service.startTime").Set(time.Now().String())
 }
 
-// This function should typically be called directly from func main(). It takes
+// Main: should typically be called directly from func main(). It takes
 // care of all housekeeping for running services and handles service lifecycle.
 func Main(info *Info) {
 	info.main()

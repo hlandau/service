@@ -15,7 +15,7 @@ import (
 	"syscall"
 )
 
-// Drops privileges to the specified UID and GID.
+// DropPrivileges: Drops privileges to the specified UID and GID.
 // This function does nothing and returns no error if all E?[UG]IDs are nonzero.
 //
 // If chrootDir is not empty, the process is chrooted into it. The directory
@@ -151,7 +151,7 @@ func ensureNoPrivs() error {
 	return nil
 }
 
-// Returns true if either or both of the following are true:
+// IsRoot returns true if either or both of the following are true:
 //
 // Any of the UID, EUID, GID or EGID are zero.
 //

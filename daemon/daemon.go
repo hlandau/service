@@ -11,7 +11,7 @@ import (
 	"syscall"
 )
 
-// Initialises a daemon with recommended values. Called by Daemonize.
+// Init: Initialises a daemon with recommended values. Called by Daemonize.
 //
 // Currently, this only calls umask(0) and chdir("/").
 func Init() error {
@@ -28,7 +28,7 @@ func Init() error {
 
 const forkedArg = "$*_FORKED_*$"
 
-// Psuedo-forks by re-executing the current binary with a special command line
+// Fork: Psuedo-forks by re-executing the current binary with a special command line
 // argument telling it not to re-execute itself again. Returns true in the
 // parent process and false in the child.
 func Fork() (isParent bool, err error) {
@@ -60,14 +60,14 @@ func Fork() (isParent bool, err error) {
 
 var haveStderr = true
 
-// Returns true unless stderr has been closed (remapped to /dev/null) as part
+// HaveStderr returns true unless stderr has been closed (remapped to /dev/null) as part
 // of daemonization. Can be used to determine whether logging to stderr is
 // useful.
 func HaveStderr() bool {
 	return haveStderr
 }
 
-// Daemonizes but doesn't fork.
+// Daemonize: Daemonizes but doesn't fork.
 //
 // The stdin, stdout and, unless keepStderr is specified, stderr fds are
 // remapped to /dev/null. setsid is called.
