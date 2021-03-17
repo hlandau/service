@@ -20,6 +20,8 @@ Standard Interface
 Here's a usage example:
 
 ```go
+package main
+
 import "gopkg.in/hlandau/service.v2"
 import "gopkg.in/hlandau/easyconfig.v1"
 
@@ -80,6 +82,8 @@ If you implement the following interface, you can use the simplified interface. 
 Usage example:
 
 ```go
+package main
+
 import "gopkg.in/hlandau/service.v2"
 import "gopkg.in/hlandau/easyconfig.v1"
 
@@ -106,9 +110,11 @@ func (*Server) Stop() error {
 func main() {
   cfg := Config{}
 
-  easyconfig.Configurator{
+  configurator := easyconfig.Configurator{
     ProgramName: "foobar",
-  }.ParseFatal(&cfg)
+  }
+
+  configurator.ParseFatal(&cfg)
 
   service.Main(&service.Info{
     Name:        "foobar",
