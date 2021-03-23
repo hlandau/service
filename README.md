@@ -1,7 +1,7 @@
 service: Write daemons in Go
 ============================
 
-[![GoDoc](https://godoc.org/gopkg.in/hlandau/service.v2?status.svg)](https://godoc.org/gopkg.in/hlandau/service.v2) [![Build Status](https://travis-ci.org/hlandau/service.svg?branch=master)](https://travis-ci.org/hlandau/service)
+[![godocs.io](https://godocs.io/github.com/hlandau/ircproto?status.svg)](https://godocs.io/github.com/hlandau/ircproto) [![No modules](https://www.devever.net/~hl/f/no-modules.svg) 100% modules-free.](https://www.devever.net/~hl/gomod)
 
 This package enables you to easily write services in Go such that the following concerns are taken care of automatically:
 
