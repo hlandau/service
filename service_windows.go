@@ -120,14 +120,6 @@ loop:
 	}
 }
 
-func isInteractive() bool {
-	interactive, err := svc.IsAnInteractiveSession()
-	if err != nil {
-		return false
-	}
-	return interactive
-}
-
 func (info *Info) installService() error {
 	svcName := info.Name
 
@@ -276,8 +268,8 @@ func (info *Info) serviceMain() error {
 		// ...
 	}
 
-	interactive := isInteractive()
-	if !interactive {
+	isService, _ := svc.IsWindowsService()
+	if isService {
 		return info.runAsService()
 	}
 
