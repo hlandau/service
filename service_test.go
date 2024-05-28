@@ -1,6 +1,6 @@
 package service_test
 
-import "gopkg.in/hlandau/service.v2"
+import "gopkg.in/hlandau/service.v3"
 
 // The following example illustrates the minimal skeleton structure to
 // implement a daemon. This example can run as a service on Windows or a daemon
@@ -10,6 +10,15 @@ func Example() {
 		Title:       "Foobar Web Server",
 		Name:        "foobar",
 		Description: "Foobar Web Server is the greatest webserver ever.",
+
+		Config: service.Config{
+			Daemon:  true,
+			Stderr:  true,
+			PIDFile: "/run/foobar.pid",
+
+			UID:    "nobody",
+			Chroot: "/var/empty",
+		},
 
 		RunFunc: func(smgr service.Manager) error {
 			// Start up your service.
@@ -44,5 +53,3 @@ func Example() {
 		},
 	})
 }
-
-// © 2015 Hugo Landau <hlandau@devever.net>  ISC License

@@ -1,30 +1,51 @@
 // Package service wraps all the complexity of writing daemons while enabling
 // seamless integration with OS service management facilities.
-package service // import "gopkg.in/hlandau/service.v2"
+//
+// # Changes in v3
+//
+// v2 of this package used [configurable] and [easyconfig] to configure
+// service-related parameters. This allowed other packages to automatically
+// discover global configurable dials for any package linked into a Go binary
+// and expose them as command line arguments. This approach has been deprecated
+// as it exposes internal details of an application's organisation as part of its
+// CLI interface and makes it hard to maintain over time. This approach is
+// deprecated in favour of an explicit approach where service variables are
+// specified in a structure, [Config].
+//
+// v3 no longer links to [easyconfig], reducing its dependency closure size,
+// and instead simply accepts a mandatory Config structure which can be used to
+// specify the configuration parameters for a service.
+//
+// v3 removes support for launching a debug HTTP server. An application can provide
+// this functionality itself if needed. This reduces dependency closure size by allowing
+// this package to no longer depend on net/http.
+//
+// # Platform-Specific Configuration Variables
+//
+// Some fields in [Config] are platform-specific. The fields are present on all
+// platforms as Go provides no simple way to omit fields in structure
+// definitions on certain platforms. The "platform" annotation on a field
+// denotes if a field is platform-specific. If this annotation is omitted, the
+// field is supported on all platforms. You can pass the "platform" annotation
+// to [UsingPlatform] to determine if a field is currently applicable.
+//
+// [configurable]: https://github.com/hlandau/configurable
+// [easyconfig]: https://github.com/hlandau/easyconfig
+package service // import "gopkg.in/hlandau/service.v3"
 
 import (
 	"expvar"
 	"fmt"
-	"gopkg.in/hlandau/easyconfig.v1/cflag"
-	"gopkg.in/hlandau/service.v2/gsptcall"
-	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"io"
-	"net/http"
-	_ "net/http/pprof" // register pprof handler for debug server
 	"os"
 	"os/signal"
 	"runtime/pprof"
 	"sync"
 	"syscall"
 	"time"
-)
 
-// Flags
-
-var (
-	fg                  = cflag.NewGroup(nil, "service")
-	cpuProfileFlag      = cflag.String(fg, "cpuprofile", "", "Write CPU profile to file")
-	debugServerAddrFlag = cflag.String(fg, "debugserveraddr", "", "Address for debug server to listen on (do not specify a public address) (default: disabled)")
+	"gopkg.in/hlandau/service.v3/gsptcall"
+	"gopkg.in/hlandau/svcutils.v1/exepath"
 )
 
 type nullWriter struct{}
@@ -81,6 +102,53 @@ type StatusSource interface {
 	StatusChan() <-chan string
 }
 
+// Configuration variables which control how a service is run.
+type Config struct {
+	// If this is non-empty, CPU profiling is initiated on startup and the
+	// profile is written to the given file.
+	CPUProfile string `help:"Write CPU profile to file"`
+
+	// UNIX: If this is non-empty, privilege dropping is enabled. The value can be a UID or username.
+	UID string `help:"UID to run as (default: don't drop privileges)" platform:"unix"`
+
+	// UNIX: If this is non-empty, it is the GID or group name used when dropping
+	// privileges. If privilege dropping is enabled (UID is non-empty) and this
+	// is empty, the GID for the given UID is looked up from the system.
+	GID string `help:"GID to run as (default: don't drop privileges)" platform:"unix"`
+
+	// UNIX: Runs the service as a daemon (aside from forking). This sets up the
+	// CWD, umask, calls setsid() and remaps stdin and stdout (and stderr, if
+	// Stderr is not set) to /dev/null.
+	Daemon bool `help:"Run as daemon? (doesn't fork)" platform:"unix"`
+
+	// UNIX: Fork. Implies Daemon.
+	Fork bool `help:"Fork? (implies daemon)" platform:"unix"`
+
+	// UNIX: If non-empty, path to a file to write the process PID to.
+	PIDFile string `help:"Write PID to file with given filename and hold a write lock" platform:"unix"`
+
+	// UNIX: If not "/", the directory to chroot into. Only used if dropping
+	// privileges (i.e., if UID is non-empty).
+	Chroot string `help:"Chroot to a directory (must set UID, GID) ('/' disables)" platform:"unix"`
+
+	// UNIX: Keep stderr open if Daemon is set and do not remap it to /dev/null.
+	Stderr bool `help:"Keep stderr open when daemonizing" platform:"unix"`
+
+	// Windows: Service control command. Can be used to install or uninstall a
+	// service, or start or stop it. If empty, run the service normally.
+	// The package automatically detects if it is running under the service manager
+	// or as a normal process.
+	Command string `help:"Service command (install, uninstall, start, stop)" platform:"windows"`
+}
+
+// Returns true if a given platform name (e.g. "", "unix", "windows") is currently applicable.
+func UsingPlatform(platformName string) bool {
+	if platformName == "" {
+		return true
+	}
+	return usingPlatform(platformName)
+}
+
 // An instantiable service.
 type Info struct {
 	// Recommended. Codename for the service, e.g. "foobar"
@@ -115,6 +183,9 @@ type Info struct {
 	AllowRoot     bool   // May the service run as root? If false, the service will refuse to run as root unless privilege dropping is set.
 	DefaultChroot string // Default path to chroot to. Use this if the service can be chrooted without consequence.
 	NoBanSuid     bool   // Set to true if the ability to execute suid binaries must be retained.
+
+	// This must contain the configuration variables to be used to run the service. It will generally be parsed by an application from a command line.
+	Config Config
 
 	// Are we being started by systemd with [Service] Type=notify?
 	// If so, we can issue service status notifications to systemd.
@@ -162,8 +233,8 @@ func (info *Info) maine() error {
 	}
 
 	// profiling
-	if cpuProfileFlag.Value() != "" {
-		f, err := os.Create(cpuProfileFlag.Value())
+	if info.Config.CPUProfile != "" {
+		f, err := os.Create(info.Config.CPUProfile)
 		if err != nil {
 			return err
 		}
@@ -178,14 +249,6 @@ func (info *Info) maine() error {
 }
 
 func (info *Info) commonPre() error {
-	if debugServerAddrFlag != nil && debugServerAddrFlag.Value() != "" {
-		go func() {
-			err := http.ListenAndServe(debugServerAddrFlag.Value(), nil)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Couldn't start debug server: %+v\n", err)
-			}
-		}()
-	}
 	return nil
 }
 
@@ -349,5 +412,3 @@ loop:
 
 	return exitErr
 }
-
-// © 2015 Hugo Landau <hlandau@devever.net>  ISC License

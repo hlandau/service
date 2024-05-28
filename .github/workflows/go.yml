@@ -9,36 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ["1.4", "1.15", "1.16"]
-    env:
-      GO111MODULE: off
-      GOMODCACHE: /sys/no/permission
-      GOPRIVATE: '*'
-      GOPROXY: off
-      GOSUMDB: off
-      GOPATH: ${{github.workspace}}/go/
-      PKGNAME: gopkg.in/hlandau/service.v2
+        go-version: ["1.19"]
     steps:
-      - name: Modules mitigation
-        run: |
-          mkdir -p "$GOPATH/hooks"
-          cat <<END > "$GOPATH/hooks/post-checkout"
-          #!/usr/bin/env bash
-          set -euo pipefail
-          echo checking for errant files...
-          find . -regextype posix-extended -iregex '^.*/(go\.mod|go\.sum)$' -printf 'WARNING: obliterating %p\n' -exec rm '{}' ';'
-          exit 0
-          END
-          chmod +x "$GOPATH/hooks/post-checkout"
-          git config --global core.hooksPath "$GOPATH/hooks"
-          git config --global init.defaultBranch master
+      - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v2
-        with:
-          path: ${{env.GOPATH}}/src/${{env.PKGNAME}}
-
-      - name: Go
-        uses: actions/setup-go@v2
+      - name: Setup Go (${{matrix.go-version}})
+        uses: actions/setup-go@v5
         with:
           go-version: ${{matrix.go-version}}
 
@@ -46,17 +22,10 @@ jobs:
         run: sudo apt-get install libcap-dev
 
       - name: Install Go dependencies
-        run: |
-          if [[ "${{matrix.go-version}}" == "1.4" ]]; then echo disabling PIE; export CGO_LDFLAGS=-no-pie; fi
-          go get -v "$PKGNAME"/...
+        run: go get .
 
       - name: Build
-        run: go build -v "$PKGNAME"/...
+        run: go build -v ./...
 
       - name: Test
-        run: go test -v "$PKGNAME"/...
-
-      - name: Ensure no modules
-        run: |
-          find "$GOPATH" -regextype posix-extended -regex '^.*/(go\.mod|go\.sum)$' |& tee "$GOPATH/modlist.txt"
-          [[ "$(cat "$GOPATH/modlist.txt" | wc -l)" == 0 ]] || { echo HAVE MODULES; cat "$GOPATH/modlist.txt"; exit 1; }
+        run: go test -v ./...

@@ -2,26 +2,26 @@ package service
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/mgr"
-	"gopkg.in/hlandau/easyconfig.v1/cflag"
-	"gopkg.in/hlandau/svcutils.v1/exepath"
 	"os"
 	"time"
+
+	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/mgr"
+	"gopkg.in/hlandau/svcutils.v1/exepath"
 )
 
 // This is always empty on Windows, as Windows does not support chrooting.
 // It is present to allow code relying upon it to compile upon all platforms.
 var EmptyChrootPath = ""
 
-var (
-	serviceFlag = cflag.String(fg, "do", "", "service command (one of: start, stop, install, remove)")
-)
-
 var errNotSupported = fmt.Errorf("not supported")
 
 func systemdUpdateStatus(status string) error {
 	return errNotSupported
+}
+
+func usingPlatform(platformName string) bool {
+	return platformName == "windows"
 }
 
 // handler is used when running as a service.
@@ -263,7 +263,7 @@ func (info *Info) runAsService() error {
 }
 
 func (info *Info) serviceMain() error {
-	switch serviceFlag.Value() {
+	switch info.Config.Command {
 	case "install":
 		return info.installService()
 	case "remove":
@@ -297,5 +297,3 @@ func (info *Info) serviceMain() error {
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-//
-// © 2014 Hugo Landau <hlandau@devever.net>  ISC License
