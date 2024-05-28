@@ -1,7 +1,7 @@
 service: Write daemons in Go
 ============================
 
-[![godocs.io](https://godocs.io/gopkg.in/hlandau/service.v2?status.svg)](https://godocs.io/gopkg.in/hlandau/service.v2) [![Build status](https://github.com/hlandau/service/actions/workflows/go.yml/badge.svg)](#) [![No modules](https://www.devever.net/~hl/f/no-modules2.svg) 100% modules-free.](https://www.devever.net/~hl/gomod)
+[![godocs.io](https://godocs.io/gopkg.in/hlandau/service.v3?status.svg)](https://godocs.io/gopkg.in/hlandau/service.v3) [![Build status](https://github.com/hlandau/service/actions/workflows/go.yml/badge.svg)](#)
 
 This package enables you to easily write services in Go such that the following concerns are taken care of automatically:
 
@@ -22,16 +22,22 @@ Here's a usage example:
 ```go
 package main
 
-import "gopkg.in/hlandau/service.v2"
-import "gopkg.in/hlandau/easyconfig.v1"
+import "gopkg.in/hlandau/service.v3"
 
 func main() {
-  easyconfig.ParseFatal(nil, nil)
-
   service.Main(&service.Info{
       Title:       "Foobar Web Server",
       Name:        "foobar",
       Description: "Foobar Web Server is the greatest webserver ever.",
+
+      Config: service.Config {
+          Daemon:  true,
+          Stderr:  true,
+          PIDFile: "/run/foobar.pid",
+
+          UID:     "nobody",
+          Chroot:  "/var/empty",
+      },
 
       RunFunc: func(smgr service.Manager) error {
           // Start up your service.
@@ -63,7 +69,7 @@ func main() {
 }
 ```
 
-You should import the package as "gopkg.in/hlandau/service.v2". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
+You should import the package as "gopkg.in/hlandau/service.v3". Compatibility will be preserved. (Please note that this compatibility guarantee does not extend to subpackages.)
 
 Simplified Interface
 --------------------
@@ -84,8 +90,7 @@ Usage example:
 ```go
 package main
 
-import "gopkg.in/hlandau/service.v2"
-import "gopkg.in/hlandau/easyconfig.v1"
+import "gopkg.in/hlandau/service.v3"
 
 type Config struct{}
 
@@ -110,14 +115,19 @@ func (*Server) Stop() error {
 func main() {
   cfg := Config{}
 
-  configurator := easyconfig.Configurator{
-    ProgramName: "foobar",
-  }
-
-  configurator.ParseFatal(&cfg)
+  /* application: parse config into cfg */
 
   service.Main(&service.Info{
     Name:        "foobar",
+
+    Config: service.Config {
+        Daemon:  true,
+        Stderr:  true,
+        PIDFile: "/run/foobar.pid",
+
+        UID:     "nobody",
+        Chroot:  "/var/empty",
+    },
 
     NewFunc: func() (service.Runnable, error) {
       return New(cfg)
@@ -137,34 +147,20 @@ to register service configuration options. "configurable" is a neutral
 generality of `service`. However, bear in mind that you are responsible for
 ensuring that configuration is loaded before calling service.Main.
 
-Configurables
--------------
+v3 no longer uses [configurable](https://github.com/hlandau/configurable) and
+instead uses an explicit configuration model in which service configuration
+parameters must be passed explicitly. This reduces dependency closure size. See
+package documentation for details.
 
-The following configurables are automatically registered under a group configurable named "service":
-
-    chroot          (string) path       (*nix only) chroot to a directory (must set UID, GID) ("/" disables)
-    daemon          (bool)              (*nix only) run as daemon? (doesn't fork)
-                                        (remaps stdin, stdout, stderr to /dev/null; calls setsid)
-    fork            (bool)              (*nix only) fork?
-    uid             (string) username   (*nix only) UID or username to setuid to
-    gid             (string) groupname  (*nix only) GID or group name to setgid to
-    pidfile         (string) path       (*nix only) Path of PID file to write and lock (default: no PID file)
-
-    do              (string) start|stop|install|remove  (Windows only) Service control.
-
-    cpuprofile      (string) path       Write CPU profile to file
-    debugserveraddr (string) ip:port    Bind the net/http DefaultServeMux to the given address
-                                        (expvars, pprof handlers will be registered; intended for debug use only;
-                                        set UsesDefaultHTTP in the Info type to disable the presence of this flag)
-
-If you call `easyconfig.ParseFatal(nil, nil)` as suggested above, these manifest as "flag" flags named -service.X,
-for each name X above. e.g. `-service.chroot=/`
+v3 removes support for launching a debug HTTP server. An application can
+provide this functionality itself if needed. This reduces dependency closure
+size by alliowing this package to no longer depend on net/http.
 
 Using as a Windows service
 --------------------------
 
-You can use the `-service.do=install` and `-service.do=remove` flags to install and
-remove the service as a Windows service. Please note that:
+You can use the `Config.Command` field to install and remove the service as a
+Windows service. Please note that:
 
   - You will need to run these commands from an elevated command prompt
     (right click on 'Command Prompt' and select 'Run as administrator').
@@ -207,7 +203,9 @@ For more information on manifests, see MSDN.
 Use with systemd
 ----------------
 
-Here is an example systemd unit file with privilege dropping and auto-restart:
+Here is an example systemd unit file with privilege dropping and auto-restart,
+assuming that your application forwards command line flags of the form
+`.service.foo=bar` as corresponding fields in the `Config` structure:
 
     [Unit]
     Description=short description of the daemon
@@ -225,10 +223,6 @@ Here is an example systemd unit file with privilege dropping and auto-restart:
 
 Bugs
 ----
-
-  - If you don't consume registered configurables, the user cannot configure
-    the options of this package, rendering it somewhat unusable. You must handle
-    registered configurables. The easyconfig example above suffices.
 
   - Testing would be nice, but a library of this nature isn't too susceptible
     to unit testing. Something to think about.
